@@ -12,7 +12,7 @@ export function createGlobe({ scene, vertexShader, fragmentShader, atmosferaVert
             fragmentShader,
             uniforms: {
                 globeTexture: {
-                    value: new THREE.TextureLoader().load('../assets/texture/01-3.jpg')
+                    value: new THREE.TextureLoader().load('../assets/texture/MAP.jpg')
                 }
             }
         })
