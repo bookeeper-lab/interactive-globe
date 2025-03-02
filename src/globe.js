@@ -13,7 +13,10 @@ export function createGlobe({ scene, vertexShader, fragmentShader, atmosferaVert
             uniforms: {
                 globeTexture: {
                     value: new THREE.TextureLoader().load('../assets/texture/MAP.jpg')
-                }
+                },
+                lightPosition: { value: new THREE.Vector3(10, 5, 5) },
+                lightColor: { value: new THREE.Vector3(1.0, 1.0, 1.0) }, // Colore bianco
+                ambientStrength: { value: 0.3 }
             }
         })
     );
@@ -54,6 +57,6 @@ export function createGlobe({ scene, vertexShader, fragmentShader, atmosferaVert
     starGeometry.setAttribute('position', new THREE.Float32BufferAttribute(starVertices, 3));
     const stars = new THREE.Points(starGeometry, starMaterial);
     scene.add(stars);
-    
+
     return { globe, group, atmosfera, stars };
 }
