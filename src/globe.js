@@ -56,7 +56,7 @@ export function createGlobe({ scene, vertexShader, fragmentShader, atmosferaVert
     
     starGeometry.setAttribute('position', new THREE.Float32BufferAttribute(starVertices, 3));
     const stars = new THREE.Points(starGeometry, starMaterial);
-    scene.add(stars);
+    //scene.add(stars);
 
     return { globe, group, atmosfera, stars };
 }

@@ -17,20 +17,20 @@ export class Point {
         const group = new THREE.Group();
         
         // Colore del marker
-        const markerColor = 0xff0000; // Rosso, puoi cambiare se preferisci
+        const markerColor = 0xc952f1; // Rosso, puoi cambiare se preferisci
         
         // Materiale principale con ombreggiatura più realistica
         const material = new THREE.MeshBasicMaterial({ 
             color: markerColor,
             transparent: true,
-            opacity: 0.9
+            opacity: 1
         });
         
         // Materiale per l'effetto ombra/highlight
         const highlightMaterial = new THREE.MeshBasicMaterial({
             color: 0xff6666, // Versione più chiara del rosso
             transparent: true,
-            opacity: 0.7
+            opacity: 1
         });
 
         // Creiamo la goccia combinando una sfera e un cono
@@ -79,13 +79,13 @@ export class Point {
         
 
         // Effetto di opacità sulla sfera principale
-        gsap.to(this.mesh.children[0].material, {
+        /* gsap.to(this.mesh.children[0].material, {
             opacity: 0.6,
             duration: 1.5,
             repeat: -1,
             yoyo: true,
             ease: "sine.inOut"
-        });
+        }); */
         
         // Effetto complementare sull'highlight per enfatizzare l'effetto 3D
         gsap.to(this.mesh.children[1].material, {
