@@ -9,8 +9,6 @@ import atmosferaVertex from './shader/atmosferaVertex.glsl';
 import atmosferaFragment from './shader/atmosferaFragment.glsl';
 import { createImageLabels } from './createImageLabels.js';
 
-
-
 // Inizializza scena, camera e renderer
 const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
@@ -61,9 +59,15 @@ const autoRotateController = {
     }
 };
 
+const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
+directionalLight.position.set(5, 3, 5);
+scene.add(directionalLight);
+
+const ambientLight = new THREE.AmbientLight(0xffffff, 0.4);
+scene.add(ambientLight);
+
 // Configura i controlli utente (mouse, zoom, etc.)
 setupControls(camera, group, autoRotateController);
-
 
 // Configura il raycaster per la selezione dei punti
 const raycaster = new THREE.Raycaster();
@@ -159,29 +163,31 @@ function handleClick(event) {
 window.addEventListener('click', handleClick);
 window.addEventListener('pointermove', handlePointerMove);
 
+// Salva le posizioni e orientamenti originali dei punti
+const originalPointData = points.map(point => ({
+    point,
+    position: point.mesh.position.clone(),
+    quaternion: point.mesh.quaternion.clone()
+}));
+
 // Loop di animazione
 function animate() {
     // Aggiorna la rotazione automatica
-    /*
-    if (autoRotateController.update()) {
-        group.rotation.y += 0.001;
-    }
-        */
+    //if (autoRotateController.update()) {
+      //  group.rotation.y += 0.001;
+    //}
     
-    // Aggiorna l'orientamento dei punti
-    points.forEach(point => {
-        point.mesh.quaternion.copy(globe.quaternion);
-    });
+    // RIMOSSO: Aggiorna l'orientamento dei punti
+    // Invece di copiare il quaternion del globo, manteniamo l'orientamento perpedicolare
     
     // Aggiorna le etichette (posizione e orientamento)
     imageLabels.updateLabels(camera, group);
     
     renderer.render(scene, camera);
 }
+
 // Avvia l'animazione
 renderer.setAnimationLoop(animate);
-
-
 
 // Gestione del ridimensionamento della finestra
 window.addEventListener('resize', () => {
@@ -189,9 +195,6 @@ window.addEventListener('resize', () => {
     camera.updateProjectionMatrix();
     renderer.setSize(window.innerWidth, window.innerHeight);
 });
-
-
-
 
 // Mantieni l'event listener per il pointermove
 window.addEventListener('pointermove', handlePointerMove);

@@ -1,6 +1,5 @@
-    import * as THREE from 'three';
-    import gsap from 'gsap';
-
+import * as THREE from 'three';
+import gsap from 'gsap';
 
 export class Point {
     constructor(lat, lng, name, description, image) {
@@ -10,50 +9,48 @@ export class Point {
         this.description = description;
         this.image = image;
         this.mesh = this.createMesh();
-        this.createPulsatingEffect();
+        //this.createPulsatingEffect();
     }
 
     createMesh() {
         const group = new THREE.Group();
         
-        // Colore del marker
-        const markerColor = 0xc952f1; // Rosso, puoi cambiare se preferisci
+        const markerColor = 0xfff111;
+
+        //colori da provare : 
+        // 0xFFE84D
         
-        // Materiale principale con ombreggiatura più realistica
-        const material = new THREE.MeshBasicMaterial({ 
+        
+        // Materiale principale con effetto metallico dorato
+        const material = new THREE.MeshPhongMaterial({ 
             color: markerColor,
             transparent: true,
-            opacity: 1
+            opacity: 1,
+            specular: 0xFFFFFF,
+            shininess: 150,
+            emissive: 0xfff111,
+            emissiveIntensity: 0.3 
         });
         
-        // Materiale per l'effetto ombra/highlight
-        const highlightMaterial = new THREE.MeshBasicMaterial({
-            color: 0xff6666, // Versione più chiara del rosso
-            transparent: true,
-            opacity: 1
-        });
 
         // Creiamo la goccia combinando una sfera e un cono
         
-        // 1. La testa del marker (sfera)
-        const sphereGeometry = new THREE.SphereGeometry(0.12, 16, 16);
+        // 1. La sfera sarà ora nella parte superiore del marker
+        const sphereGeometry = new THREE.SphereGeometry(0.2, 20, 20);
         const sphere = new THREE.Mesh(sphereGeometry, material);
-        sphere.position.set(0, 0.12, 0);
+        sphere.position.set(0, 0.18, 0); // Spostata in alto
+    
         
-        // 2. Aggiungiamo un highlight sulla sfera per dare effetto 3D
-        const smallerSphereGeom = new THREE.SphereGeometry(0.08, 12, 12);
-        const highlight = new THREE.Mesh(smallerSphereGeom, highlightMaterial);
-        highlight.position.set(-0.04, 0.16, -0.04); // Posizionato leggermente spostato per dare effetto luce
-        
-        // 3. Il corpo a punta (cono)
-        const coneGeometry = new THREE.ConeGeometry(0.12, 0.25, 16);
+        // 3. Il cono sarà nella parte inferiore con la punta rivolta verso il basso
+        const coneGeometry = new THREE.ConeGeometry(0.18, 0.3, 20);
         const cone = new THREE.Mesh(coneGeometry, material);
-        cone.position.set(0, -0.06, 0);
-        cone.rotation.x = Math.PI; // Ruotato per far puntare la punta verso il basso
+        cone.position.set(0, -0.05, 0); // Spostato in basso
+        // Il cono per default ha la punta verso l'alto, quindi lo ruotiamo
+        cone.rotation.x = Math.PI; // Questa rotazione fa puntare la punta verso il basso
         
         // Aggiungiamo tutti gli elementi al gruppo
         group.add(sphere);
-        group.add(highlight);
+        //group.add(highlight); // Commentato come nel tuo codice originale
         group.add(cone);
 
         // Converti coordinate geografiche in posizione 3D
@@ -61,40 +58,34 @@ export class Point {
         const theta = (this.lng + 180) * (Math.PI / 180);
         const radius = 5;
 
+        // Posizionamento preciso sul globo
         group.position.x = -(radius * Math.sin(phi) * Math.cos(theta));
         group.position.z = (radius * Math.sin(phi) * Math.sin(theta));
         group.position.y = (radius * Math.cos(phi));
 
+        // Calcola la distanza corretta per far "galleggiare" il marker
+        const floatDistance = 0.18; // Distanza dal globo
+        const direction = new THREE.Vector3().copy(group.position).normalize();
+        group.position.add(direction.multiplyScalar(floatDistance));
+
         // Allinea il marker perpendicolare alla superficie del globo
         group.lookAt(new THREE.Vector3(0, 0, 0));
         
-        // Aggiungiamo un offset di rotazione per far puntare la punta esattamente sulla coordinata
-        // e far "galleggiare" la parte sferica sopra il punto
-        group.rotateX(Math.PI/2);
+        // Non è necessaria un'ulteriore rotazione di 90 gradi
+        group.rotateX(-Math.PI/2); // Rimuoviamo questa rotazione
         
         return group;
     }
 
     createPulsatingEffect() {
         
-
-        // Effetto di opacità sulla sfera principale
-        /* gsap.to(this.mesh.children[0].material, {
-            opacity: 0.6,
-            duration: 1.5,
+        // Leggera oscillazione per dare vita al marker
+        gsap.to(this.mesh.position, {
+            y: this.mesh.position.y + 0.05,
+            duration: 2,
             repeat: -1,
             yoyo: true,
             ease: "sine.inOut"
-        }); */
-        
-        // Effetto complementare sull'highlight per enfatizzare l'effetto 3D
-        gsap.to(this.mesh.children[1].material, {
-            opacity: 0.9,
-            duration: 1.5,
-            repeat: -1,
-            yoyo: true,
-            ease: "sine.inOut",
-            delay: 0.2 // Leggero ritardo per creare un effetto più interessante
         });
     }
 }
