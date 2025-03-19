@@ -35,18 +35,6 @@ export function setupControls(camera, group, autoRotateController) {
         x: 0,
         y: 0
     };
-
-    let targetRotation = {
-        x: group.rotation.x,
-        y: group.rotation.y
-    };
-    
-    let currentRotation = {
-        x: group.rotation.x,
-        y: group.rotation.y
-    };
-    
-    const rotationSmoothing = 0.1;
     
     function onMouseDown(event) {
         isDragging = true;

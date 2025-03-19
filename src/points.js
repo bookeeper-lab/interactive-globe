@@ -15,7 +15,7 @@ export class Point {
     createMesh() {
         const group = new THREE.Group();
         
-        const markerColor = 0xfff111;
+        const markerColor = 0xcd2d1b;
 
         //colori da provare : 
         // 0xFFE84D
@@ -26,10 +26,10 @@ export class Point {
             color: markerColor,
             transparent: true,
             opacity: 1,
-            specular: 0xFFFFFF,
-            shininess: 150,
-            emissive: 0xfff111,
-            emissiveIntensity: 0.3 
+            specular: 0x943126,
+            shininess: 40,
+            //emissive: 0xfff111,
+            emissiveIntensity: 0.6 
         });
         
 
