@@ -163,12 +163,65 @@ function handleClick(event) {
 window.addEventListener('click', handleClick);
 window.addEventListener('pointermove', handlePointerMove);
 
-// Salva le posizioni e orientamenti originali dei punti
-const originalPointData = points.map(point => ({
-    point,
-    position: point.mesh.position.clone(),
-    quaternion: point.mesh.quaternion.clone()
-}));
+
+/* const skyRadius = 90;
+const skyGeometry = new THREE.SphereGeometry(skyRadius, 32, 32);
+const skyMaterial = new THREE.MeshBasicMaterial({
+    color: 0x382616, // Colore seppia base
+    side: THREE.BackSide,
+    fog: false
+});
+const sky = new THREE.Mesh(skyGeometry, skyMaterial);
+scene.add(sky); */
+
+const skyRadius = 90;
+const skyGeometry = new THREE.SphereGeometry(skyRadius, 32, 32);
+
+// Shader semplificato
+const skyMaterial = new THREE.ShaderMaterial({
+    uniforms: {
+        lightPos: { value: directionalLight.position.clone().normalize() }
+    },
+    vertexShader: `
+        varying vec3 vNormal;
+        
+        void main() {
+            vNormal = normalize(normalMatrix * normal);
+            gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+        }
+    `,
+    fragmentShader: `
+        uniform vec3 lightPos;
+        varying vec3 vNormal;
+        
+        void main() {
+            // Colori seppia in diverse tonalità
+            vec3 darkSepia = vec3(0.4196, 0.3255, 0.1961);
+            vec3 midSepia = vec3(0.6, 0.46, 0.29);
+            vec3 lightSepia = vec3(0.8196, 0.6314, 0.3843);
+
+            
+            // Calcola intensità in base alla normale e alla posizione della luce
+            float intensity = 0.5 + 0.5 * dot(vNormal, lightPos);
+            
+            // Crea un gradiente a due livelli per un effetto di profondità
+            vec3 color;
+            if (intensity > 0.7) {
+                color = mix(midSepia, lightSepia, (intensity - 0.7) / 0.3);
+            } else {
+                color = mix(darkSepia, midSepia, intensity / 0.7);
+            }
+            
+            gl_FragColor = vec4(color, 1.0);
+        }
+    `,
+    side: THREE.BackSide
+});
+
+const sky = new THREE.Mesh(skyGeometry, skyMaterial);
+scene.add(sky);
+
+
 
 // Loop di animazione
 function animate() {
@@ -182,7 +235,7 @@ function animate() {
     
     // Aggiorna le etichette (posizione e orientamento)
     imageLabels.updateLabels(camera, group);
-    
+    sky.material.uniforms.lightPos.value.copy(directionalLight.position.clone().normalize());
     renderer.render(scene, camera);
 }
 
@@ -198,3 +251,6 @@ window.addEventListener('resize', () => {
 
 // Mantieni l'event listener per il pointermove
 window.addEventListener('pointermove', handlePointerMove);
+
+// Crea una grande sfera che circonda la scena (skybox)
+

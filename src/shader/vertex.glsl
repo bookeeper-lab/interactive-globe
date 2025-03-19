@@ -8,15 +8,10 @@ void main(){
     vertexUV = uv;
     vertexNormal = normalize(normalMatrix*normal);
 
-
-
     vec4 worldPosition = modelViewMatrix * vec4(position, 1.0);
     lightDirection = normalize(lightPosition - worldPosition.xyz);
 
-
-
+ 
     gl_Position = projectionMatrix* modelViewMatrix * vec4 (position,1.0);
-
-
 }
 

@@ -1,4 +1,3 @@
-import * as THREE from 'three';
 import gsap from 'gsap';
 
 /**
@@ -6,13 +5,13 @@ import gsap from 'gsap';
  */
 export function setupControls(camera, group, autoRotateController) {
     // Configurazione zoom
-    const minZoom = 10;
+    const minZoom = 8;
     const maxZoom = 30;
     
     function onWheel(event) {
         event.preventDefault();
         
-        const zoomSpeed = 1;
+        const zoomSpeed = 0.8;
         const delta = event.deltaY * zoomSpeed;
         
         const newZ = Math.min(
@@ -36,6 +35,18 @@ export function setupControls(camera, group, autoRotateController) {
         x: 0,
         y: 0
     };
+
+    let targetRotation = {
+        x: group.rotation.x,
+        y: group.rotation.y
+    };
+    
+    let currentRotation = {
+        x: group.rotation.x,
+        y: group.rotation.y
+    };
+    
+    const rotationSmoothing = 0.1;
     
     function onMouseDown(event) {
         isDragging = true;
@@ -68,6 +79,8 @@ export function setupControls(camera, group, autoRotateController) {
         // Disattiva la rotazione automatica
         autoRotateController.disable();
     }
+
+
     
     document.addEventListener('mousedown', onMouseDown);
     document.addEventListener('mousemove', onMouseMove);

@@ -38,7 +38,7 @@ export function createGlobe({ scene, vertexShader, fragmentShader, atmosferaVert
     );
     
     atmosfera.scale.set(1.1, 1.1, 1.1);
-    scene.add(atmosfera);
+    //scene.add(atmosfera);
     
     // Crea le stelle
     const starGeometry = new THREE.BufferGeometry();

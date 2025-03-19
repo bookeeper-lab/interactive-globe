@@ -38,7 +38,7 @@ export class Point {
         // 1. La sfera sarà ora nella parte superiore del marker
         const sphereGeometry = new THREE.SphereGeometry(0.2, 20, 20);
         const sphere = new THREE.Mesh(sphereGeometry, material);
-        sphere.position.set(0, 0.18, 0); // Spostata in alto
+        sphere.position.set(0, 0.19, 0); // Spostata in alto
     
         
         // 3. Il cono sarà nella parte inferiore con la punta rivolta verso il basso

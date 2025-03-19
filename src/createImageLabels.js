@@ -111,6 +111,8 @@ export function createImageLabels() {
                 
                 // Aggiungi l'etichetta direttamente alla scena per evitare che ruoti con il globo
                 scene.add(labelMesh);
+
+                
                 
                 // Calcola la posizione mondiale del punto
                 const worldPosition = new THREE.Vector3();
@@ -160,6 +162,8 @@ export function createImageLabels() {
             }
         );
     }
+
+    
     
     // Funzione per aggiornare l'orientamento e la posizione delle etichette
     function updateLabels(camera, group) {
