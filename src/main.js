@@ -174,7 +174,7 @@ const skyMaterial = new THREE.MeshBasicMaterial({
 const sky = new THREE.Mesh(skyGeometry, skyMaterial);
 scene.add(sky); */
 
-const skyRadius = 90;
+ /* const skyRadius = 90;
 const skyGeometry = new THREE.SphereGeometry(skyRadius, 32, 32);
 
 // Shader semplificato
@@ -219,7 +219,12 @@ const skyMaterial = new THREE.ShaderMaterial({
 });
 
 const sky = new THREE.Mesh(skyGeometry, skyMaterial);
-scene.add(sky);
+scene.add(sky);  */
+
+ const loader = new THREE.TextureLoader();
+loader.load('../assets/texture/back4 1.png', function(texture) {
+    scene.background = texture;
+}); 
 
 
 
@@ -235,7 +240,7 @@ function animate() {
     
     // Aggiorna le etichette (posizione e orientamento)
     imageLabels.updateLabels(camera, group);
-    sky.material.uniforms.lightPos.value.copy(directionalLight.position.clone().normalize());
+    //sky.material.uniforms.lightPos.value.copy(directionalLight.position.clone().normalize());
     renderer.render(scene, camera);
 }
 
