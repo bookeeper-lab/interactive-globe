@@ -4,16 +4,16 @@ const dbConnection = require('./config/db_connection');
 const cors = require('cors');
 require('dotenv').config();
 
-const mapsRouter = require('./controller/maps');
-const mapMetadataRouter = require('./controller/map.metadata');
+const mapsRoutes = require('./controller/maps');
 const syncMapsDirectory = require('./service/mapsSync');
 
 const app = express();
 app.use(express.json());
 app.use(cors());
 
-app.use('/api', mapsRouter);
-app.use('/api', mapMetadataRouter);
+app.use('/api', mapsRoutes);
+console.log(process.env.MAPS_DIR);
+app.use('/maps', express.static(process.env.MAPS_DIR)); // Serve la cartella delle mappe come statico
 
 // Connessione al database e sincronizzazione
 dbConnection.authenticate()
