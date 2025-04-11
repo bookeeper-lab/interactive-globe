@@ -1,6 +1,7 @@
 const { DataTypes } = require('sequelize');
 const sequelize = require('../config/db_connection');
-const Municipality = require('./Municipality');
+const D_Libraries = require('./Digital_Libraries');
+const Coordinates = require('./Coordinates'); 
 
 const Maps = sequelize.define('maps', {
     id: {
@@ -16,20 +17,38 @@ const Maps = sequelize.define('maps', {
         type: DataTypes.STRING, 
         allowNull: false
      },
-     m_id:{
+     m_id:{ //id_riferimento al comune
         type: DataTypes.INTEGER,
         references: {
             model: 'municipalities',
             key: 'id'
         },
         allowNull: false,
-     }
+     },
+    creator: {
+        type: DataTypes.STRING,
+        allowNull: true
+    },
+    type: {
+        type: DataTypes.STRING,
+        allowNull: true
+    },
+    location: {
+        type: DataTypes.STRING,
+        allowNull: true
+    },
+    coord_id: {
+        type: DataTypes.INTEGER,
+        allowNull: true
+    }
 }, { 
     timestamps: false,
 });
 
-Municipality.hasMany(Maps, { foreignKey: 'm_id', onDelete: 'CASCADE' });
-Maps.belongsTo(Municipality, { foreignKey: 'm_id' });
+D_Libraries.hasMany(Maps, { foreignKey: 'm_id', onDelete: 'CASCADE' });
+Maps.belongsTo(D_Libraries, { foreignKey: 'm_id' });
 
+Coordinates.hasMany(Maps, { foreignKey: 'coord_id', onDelete: 'SET NULL' });
+Maps.belongsTo(Coordinates, { foreignKey: 'coord_id' });
 
 module.exports = Maps;

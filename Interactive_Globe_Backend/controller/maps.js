@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const Maps  = require('../model/Maps'); // Assicurati di avere il modello Maps definito correttamente
+const Maps  = require('../model/Maps'); 
 
 router.get('/maps/:m_id', async (req, res) => {
   try{

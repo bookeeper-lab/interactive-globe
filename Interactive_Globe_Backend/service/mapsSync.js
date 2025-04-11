@@ -2,7 +2,7 @@
 const fs = require('fs');
 const path = require('path');
 const Maps = require('../model/Maps');
-const Municipality = require('../model/Municipality');
+const Digital_Libraries = require('../model/Digital_Libraries');
 
 const MAPS_DIRECTORY = process.env.MAPS_DIR || path.join(__dirname, '../maps_dir');
 
@@ -15,12 +15,12 @@ async function syncMapsDirectory() {
 
     for (const folder of municipalityFolders) {
       // Cerca o crea il comune basato sul nome della cartella
-      let municipalityRecord = await Municipality.findOne({ where: { name: folder } });
-      if (!municipalityRecord) {
-        municipalityRecord = await Municipality.create({
+      let D_Libraries = await Digital_Libraries.findOne({ where: { name: folder } });
+      if (!D_Libraries) {
+        D_Libraries = await Digital_Libraries.create({
           name: folder,
           markerColor: "#000000",
-          mapsNumber: 0 // o un valore di default
+          mapsNumber: 0 
         });
         console.log(`Creato nuovo comune: ${folder}`);
       }
@@ -37,7 +37,7 @@ async function syncMapsDirectory() {
           await Maps.create({
             title: path.parse(file).name,
             file_name: file,
-            m_id: municipalityRecord.id  // Usa il record trovato o creato
+            m_id: D_Libraries.id  // Usa il record trovato o creato
           });
           console.log(`Aggiunta mappa: ${file} al comune: ${folder}`);
         }

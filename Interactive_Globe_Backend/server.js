@@ -13,7 +13,7 @@ app.use(cors());
 
 app.use('/api', mapsRoutes);
 console.log(process.env.MAPS_DIR);
-app.use('/maps', express.static(process.env.MAPS_DIR)); // Serve la cartella delle mappe come statico
+app.use('/maps', express.static(process.env.MAPS_DIR));
 
 // Connessione al database e sincronizzazione
 dbConnection.authenticate()
