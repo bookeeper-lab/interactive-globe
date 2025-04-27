@@ -20,7 +20,7 @@ const Maps = sequelize.define('maps', {
      m_id:{ //id_riferimento al comune
         type: DataTypes.INTEGER,
         references: {
-            model: 'municipalities',
+            model: 'digital_libraries',
             key: 'id'
         },
         allowNull: false,

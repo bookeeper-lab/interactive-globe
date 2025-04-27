@@ -1,7 +1,7 @@
 const {DataTypes} = require('sequelize');
 const sequelize = require('../config/db_connection');
 
-const Municipality = sequelize.define('municipality', {
+const Digital_Libraries = sequelize.define('digital_libraries', {
     id: {
         type: DataTypes.INTEGER,
         primaryKey: true,
@@ -23,5 +23,5 @@ const Municipality = sequelize.define('municipality', {
     timestamps: false,
 });
 
-module.exports = Municipality;
+module.exports = Digital_Libraries;
 
