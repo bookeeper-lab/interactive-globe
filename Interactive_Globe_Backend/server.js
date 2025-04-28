@@ -4,7 +4,8 @@ const dbConnection = require('./config/db_connection');
 const cors = require('cors');
 require('dotenv').config();
 
-const mapsRoutes = require('./controller/maps');
+const mapsRoutes = require('./api/maps');
+const digitalLibrariesRoutes = require('./api/DigitalLibrary');
 const syncMapsDirectory = require('./service/mapsSync');
 
 const app = express();
@@ -14,6 +15,7 @@ app.use(cors());
 app.use('/api', mapsRoutes);
 console.log(process.env.MAPS_DIR);
 app.use('/maps', express.static(process.env.MAPS_DIR));
+app.use('/api', digitalLibrariesRoutes);
 
 // Connessione al database e sincronizzazione
 dbConnection.authenticate()
