@@ -161,7 +161,6 @@ export async function createPoints(group) {
         const mapData = await response.json();
         console.log('Map data received:', mapData);
         
-        // Filter out maps without coordinates
         const mapsWithCoordinates = mapData.filter(map => map.Coordinate !== null);
         
         if (mapsWithCoordinates.length === 0) {
@@ -169,15 +168,14 @@ export async function createPoints(group) {
             return createStaticPoints(group);
         }
         
-        // Transform data to points
+        // Trasforma i dati in punti
         const points = mapsWithCoordinates.map(map => {
-            // Use correct property path based on your API response
             const lat = map.Coordinate ? map.Coordinate.latitude : 0;
             const lng = map.Coordinate ? map.Coordinate.longitude : 0;
             
             console.log(`Creating point for map: ${map.title} at lat:${lat}, lng:${lng}`);
             
-            // Importante: costruiamo qui l'URL corretto per l'immagine utilizzando l'endpoint API
+            // Importante: costruisco qui l'URL corretto per l'immagine utilizzando l'endpoint API
             const imageUrl = `${import.meta.env.VITE_BACKEND_PORT}/api/maps/${map.id}/image`;
             
             return new Point(
@@ -185,18 +183,18 @@ export async function createPoints(group) {
                 lng, 
                 map.title, 
                 map.location || 'Nessuna descrizione disponibile',
-                imageUrl  // Usa l'URL API per l'immagine
+                imageUrl  //uso l'url creato dinamicamente 
             );
         });
         
-        // Add points to group
+        // Aggiungi i punti al gruppo
         points.forEach(point => group.add(point.mesh));
         
         return points;
         
     } catch (error) {
         console.error('Error loading points:', error);
-        // Fall back to static points if there's an error
+        // Se c'è un errore, torna ai punti statici
         return createStaticPoints(group);
     }
 }

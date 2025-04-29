@@ -13,8 +13,6 @@ router.get('/maps/:m_id', async (req, res) => {
       },
       include: [{
         model: Coordinates,
-        // Il nome dell'associazione qui è importante e deve corrispondere a come
-        // è definito nella relazione nel modello Maps
       }]
     });
     
