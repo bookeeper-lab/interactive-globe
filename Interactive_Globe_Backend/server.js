@@ -6,16 +6,24 @@ require('dotenv').config();
 
 const mapsRoutes = require('./api/maps');
 const digitalLibrariesRoutes = require('./api/DigitalLibrary');
+const coordinatesRoutes = require('./api/Coordinates');
 const syncMapsDirectory = require('./service/mapsSync');
 
 const app = express();
 app.use(express.json());
 app.use(cors());
 
+app.use(cors({
+  origin: '*',
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+}))
+
 app.use('/api', mapsRoutes);
 console.log(process.env.MAPS_DIR);
 app.use('/maps', express.static(process.env.MAPS_DIR));
 app.use('/api', digitalLibrariesRoutes);
+app.use('/api', coordinatesRoutes);
 
 // Connessione al database e sincronizzazione
 dbConnection.authenticate()

@@ -45,8 +45,8 @@ const Maps = sequelize.define('maps', {
     timestamps: false,
 });
 
-D_Libraries.hasMany(Maps, { foreignKey: 'm_id', onDelete: 'CASCADE' });
-Maps.belongsTo(D_Libraries, { foreignKey: 'm_id' });
+D_Libraries.hasMany(Maps, { foreignKey: 'm_id', as: 'Maps', onDelete: 'CASCADE' });
+Maps.belongsTo(D_Libraries, { foreignKey: 'm_id', as: 'Digital_Library' });
 
 Coordinates.hasMany(Maps, { foreignKey: 'coord_id', onDelete: 'SET NULL' });
 Maps.belongsTo(Coordinates, { foreignKey: 'coord_id' });

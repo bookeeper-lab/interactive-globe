@@ -91,7 +91,119 @@ export class Point {
 }
 
 // Il resto delle funzioni rimane invariato
-export function createPoints(group) {
+/* export function createPoints(group) {
+    const pointsData = [
+        {
+            lat: 50.4501, 
+            lng: 30.5234, 
+            name: "Ucraina", 
+            description: "Mappa storica dell'Ucraina.",
+            image: "../assets/maps/ucraina.png"
+        },
+        {
+            lat: 7.873054, 
+            lng: 80.771797, 
+            name: "Ceylon (Sri Lanka)", 
+            description: "Mappa storica di Ceylon.",
+            image: "../assets/maps/celyon.png"
+        },
+        {
+            lat: 17.352656, 
+            lng: 9.677581, 
+            name: "Africa", 
+            description: "Mappa storica dell'Africa.",
+            image: "../assets/maps/africa.png"
+        },
+        {
+            lat: 59.329323, 
+            lng: 18.068581, 
+            name: "Norway", 
+            description: "Mappa antica della Scandinavia.",
+            image: "../assets/maps/norway.png"
+        },
+        {
+            lat: 41.902783, 
+            lng: 12.496365, 
+            name: "Italy", 
+            description: "Mappa storica dell'Italia.",
+            image: "../assets/maps/italy.png"
+        }
+    ];
+
+    const points = pointsData.map(data => new Point(
+        data.lat, 
+        data.lng, 
+        data.name, 
+        data.description, 
+        data.image
+    ));
+
+    points.forEach(point => group.add(point.mesh));
+
+    return points;
+} */
+
+
+    // Modifica in points.js nella funzione createPoints
+export async function createPoints(group) {
+    try {
+        const municipalityId = localStorage.getItem('selectedMunicipalityId') || 1;
+        
+        const apiUrl = `${import.meta.env.VITE_BACKEND_PORT}/api/maps/${municipalityId}`;
+        console.log('Fetching maps from:', apiUrl);
+        
+        const response = await fetch(apiUrl);
+        
+        if (!response.ok) {
+            throw new Error(`Error fetching maps: ${response.status} ${response.statusText}`);
+        }
+        
+        const mapData = await response.json();
+        console.log('Map data received:', mapData);
+        
+        // Filter out maps without coordinates
+        const mapsWithCoordinates = mapData.filter(map => map.Coordinate !== null);
+        
+        if (mapsWithCoordinates.length === 0) {
+            console.warn('No maps with coordinates found, falling back to static points');
+            return createStaticPoints(group);
+        }
+        
+        // Transform data to points
+        const points = mapsWithCoordinates.map(map => {
+            // Use correct property path based on your API response
+            const lat = map.Coordinate ? map.Coordinate.latitude : 0;
+            const lng = map.Coordinate ? map.Coordinate.longitude : 0;
+            
+            console.log(`Creating point for map: ${map.title} at lat:${lat}, lng:${lng}`);
+            
+            // Importante: costruiamo qui l'URL corretto per l'immagine utilizzando l'endpoint API
+            const imageUrl = `${import.meta.env.VITE_BACKEND_PORT}/api/maps/${map.id}/image`;
+            
+            return new Point(
+                lat, 
+                lng, 
+                map.title, 
+                map.location || 'Nessuna descrizione disponibile',
+                imageUrl  // Usa l'URL API per l'immagine
+            );
+        });
+        
+        // Add points to group
+        points.forEach(point => group.add(point.mesh));
+        
+        return points;
+        
+    } catch (error) {
+        console.error('Error loading points:', error);
+        // Fall back to static points if there's an error
+        return createStaticPoints(group);
+    }
+}
+    
+
+export function createStaticPoints(group) {
+    console.log("Creazione punti statici");
     const pointsData = [
         {
             lat: 50.4501, 
