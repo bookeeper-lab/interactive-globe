@@ -12,7 +12,7 @@ export function createGlobe({ scene, vertexShader, fragmentShader, atmosferaVert
             fragmentShader,
             uniforms: {
                 globeTexture: {
-                    value: new THREE.TextureLoader().load('../assets/texture/MAP.jpg')
+                    value: new THREE.TextureLoader().load('../assets/texture/map2.jpg')
                 },
                 lightPosition: { value: new THREE.Vector3(10, 5, 5) },
                 lightColor: { value: new THREE.Vector3(1.0, 1.0, 1.0) }, // Colore bianco

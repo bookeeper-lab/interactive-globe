@@ -182,7 +182,7 @@ async function init() {
         
         // Carica la texture di sfondo
         const loader = new THREE.TextureLoader();
-        loader.load('../assets/texture/back4 1.png', function(texture) {
+        loader.load('../assets/texture/backgroundGlobe.jpg', function(texture) {
             scene.background = texture;
         });
 
