@@ -1,5 +1,4 @@
 import * as THREE from 'three';
-import gsap from 'gsap';
 import { createGlobe } from './globe.js';
 import { createPoints, rotateGlobeToPoint } from './points.js';
 import { setupControls } from './controls.js';
@@ -9,10 +8,17 @@ import atmosferaVertex from './shader/atmosferaVertex.glsl';
 import atmosferaFragment from './shader/atmosferaFragment.glsl';
 import { createImageLabels } from './createImageLabels.js';
 
+
+
 // Funzione principale asincrona
 async function init() {
+
     // Inizializza scena, camera e renderer
     const scene = new THREE.Scene();
+    const globeContainer = document.querySelector('.globe-container');
+    const containerWidth = globeContainer.clientWidth;
+    const containerHeight = globeContainer.clientHeight;
+
     const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
     camera.position.z = 12;
 
@@ -20,11 +26,11 @@ async function init() {
         antialias: true,
         canvas: document.querySelector('canvas')
     });
-    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.setSize(containerWidth, containerHeight);
     renderer.setPixelRatio(window.devicePixelRatio);
 
     // Crea il globo e componenti associati
-    const { globe, group } = createGlobe({
+    const { group } = createGlobe({
         scene,
         vertexShader,
         fragmentShader,
@@ -32,26 +38,32 @@ async function init() {
         atmosferaFragment
     });
 
-    // Aggiungi un indicatore di caricamento
-    const loadingElement = document.createElement('div');
-    loadingElement.style.position = 'absolute';
-    loadingElement.style.top = '50%';
-    loadingElement.style.left = '50%';
-    loadingElement.style.transform = 'translate(-50%, -50%)';
-    loadingElement.style.color = 'white';
-    loadingElement.style.fontSize = '20px';
-    loadingElement.textContent = 'Caricamento mappe...';
-    document.body.appendChild(loadingElement);
+    //mi serve per il resize corretto del canvas ovvero il globo visto che viene schiacciato un po' durante il rendering 
+    function resizeRendererToDisplaySize(renderer) {
+        const canvas = renderer.domElement;
+        const container = canvas.parentElement;
+        const width = container.clientWidth;
+        const height = container.clientHeight;
+        const needResize = canvas.width !== width || canvas.height !== height;
+        
+        if (needResize) {
+          // Imposta il renderer alle dimensioni del container
+          renderer.setSize(width, height, false);
+          
+          // Aggiorna anche l'aspect ratio della camera
+          if (camera) {
+            camera.aspect = width / height;
+            camera.updateProjectionMatrix();
+          }
+        }
+        
+        return needResize;
+      }
 
     // Carica i punti dal backend (ora asincrono)
     try {
         const points = await createPoints(group);
-        
-        // Rimuovi l'indicatore di caricamento
-        document.body.removeChild(loadingElement);
-        
         const imageLabels = createImageLabels();
-
         // Configura il controller di rotazione automatica
         const autoRotateController = {
             enabled: true,
@@ -92,88 +104,109 @@ async function init() {
 
         // Cambia il cursore quando passa sopra i punti
         function handlePointerMove(event) {
-            pointer.x = (event.clientX / window.innerWidth) * 2 - 1;
-            pointer.y = -(event.clientY / window.innerHeight) * 2 + 1;
+            const rect = globeContainer.getBoundingClientRect();
+            if (
+                event.clientX >= rect.left && 
+                event.clientX <= rect.right && 
+                event.clientY >= rect.top && 
+                event.clientY <= rect.bottom
+            ) {
+                // Normalizza le coordinate del puntatore per il raycaster
+                pointer.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
+                pointer.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
 
-            raycaster.setFromCamera(pointer, camera);
-            
-            // Raccogli tutti i sotto-oggetti di ogni punto
-            const allPointObjects = [];
-            points.forEach(point => {
-                point.mesh.children.forEach(childMesh => {
-                    allPointObjects.push(childMesh);
+                raycaster.setFromCamera(pointer, camera);
+                
+                // Raccogli tutti i sotto-oggetti di ogni punto
+                const allPointObjects = [];
+                points.forEach(point => {
+                    point.mesh.children.forEach(childMesh => {
+                        allPointObjects.push(childMesh);
+                    });
                 });
-            });
-            
-            const intersects = raycaster.intersectObjects(allPointObjects);
-            document.body.style.cursor = intersects.length > 0 ? 'pointer' : 'default';
+                
+                const intersects = raycaster.intersectObjects(allPointObjects);
+                document.body.style.cursor = intersects.length > 0 ? 'pointer' : 'default';
+            }
         }
 
         function handleClick(event) {
-            // Se ci sono animazioni in corso, ignora il click
-            if (imageLabels.isAnimating()) {
-                console.log("Animazioni in corso, click ignorato");
-                return;
-            }
+            // Ottieni le coordinate del mouse relativamente al contenitore del globo
+            const rect = globeContainer.getBoundingClientRect();
             
-            pointer.x = (event.clientX / window.innerWidth) * 2 - 1;
-            pointer.y = -(event.clientY / window.innerHeight) * 2 + 1;
+            // Verifica se il click è avvenuto all'interno del contenitore
+            if (
+                event.clientX >= rect.left && 
+                event.clientX <= rect.right && 
+                event.clientY >= rect.top && 
+                event.clientY <= rect.bottom
+            ) {
+                // Se ci sono animazioni in corso, ignora il click
+                if (imageLabels.isAnimating()) {
+                    console.log("Animazioni in corso, click ignorato");
+                    return;
+                }
+                
+                // Normalizza le coordinate del puntatore per il raycaster
+                pointer.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
+                pointer.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
 
-            raycaster.setFromCamera(pointer, camera);
-            
-            // Raccogli tutti i sotto-oggetti di ogni punto per il raycasting
-            const allPointObjects = [];
-            points.forEach(point => {
-                // Associa ogni mesh figlio al suo punto parent per recuperarlo dopo
-                point.mesh.children.forEach(childMesh => {
-                    childMesh.userData.parentPoint = point;
-                    allPointObjects.push(childMesh);
+                raycaster.setFromCamera(pointer, camera);
+                
+                // Raccogli tutti i sotto-oggetti di ogni punto per il raycasting
+                const allPointObjects = [];
+                points.forEach(point => {
+                    // Associa ogni mesh figlio al suo punto parent per recuperarlo dopo
+                    point.mesh.children.forEach(childMesh => {
+                        childMesh.userData.parentPoint = point;
+                        allPointObjects.push(childMesh);
+                    });
                 });
-            });
-            
-            // Controlla se è stato cliccato un punto
-            const intersectsPoints = raycaster.intersectObjects(allPointObjects);
-            
-            if (intersectsPoints.length > 0) {
-                // Recupera il punto parent dal sotto-oggetto che è stato cliccato
-                const clickedPoint = intersectsPoints[0].object.userData.parentPoint;
-                console.log("Punto cliccato:", clickedPoint.name);
                 
-                // Disattiva la rotazione automatica
-                autoRotateController.disable();
+                // Controlla se è stato cliccato un punto
+                const intersectsPoints = raycaster.intersectObjects(allPointObjects);
                 
-                // Se non ha già un'etichetta, crea una nuova etichetta
-                if (!imageLabels.hasLabel(clickedPoint)) {
-                    // Crea una nuova etichetta passando la scena e la camera
-                    imageLabels.createLabelForPoint(clickedPoint, group, scene, camera);
+                if (intersectsPoints.length > 0) {
+                    // Recupera il punto parent dal sotto-oggetto che è stato cliccato
+                    const clickedPoint = intersectsPoints[0].object.userData.parentPoint;
+                    console.log("Punto cliccato:", clickedPoint.name);
                     
-                    // Ruota il globo verso il punto
-                    rotateGlobeToPoint(group, clickedPoint, camera, () => {
-                        console.log("Rotazione completata");
+                    // Disattiva la rotazione automatica
+                    autoRotateController.disable();
+                    
+                    // Se non ha già un'etichetta, crea una nuova etichetta
+                    if (!imageLabels.hasLabel(clickedPoint)) {
+                        // Crea una nuova etichetta passando la scena e la camera
+                        imageLabels.createLabelForPoint(clickedPoint, group, scene, camera);
+                        
+                        // Ruota il globo verso il punto
+                        rotateGlobeToPoint(group, clickedPoint, camera, () => {
+                            console.log("Rotazione completata");
+                        });
+                    }
+                    return; // Termina qui per evitare di gestire anche il click out
+                }
+                
+                // Se arriviamo qui, non è stato cliccato un punto
+                // Controlla se è stata cliccata un'etichetta
+                const labelMeshes = imageLabels.getActiveLabels().map(label => label.mesh);
+                const intersectsLabels = raycaster.intersectObjects(labelMeshes);
+                
+                if (intersectsLabels.length > 0) {
+                    // L'utente ha cliccato su un'etichetta, non facciamo nulla qui
+                    return;
+                }
+                
+                // Se arriviamo qui, è un click out (né su un punto né su un'etichetta)
+                // Chiudi tutte le etichette attive
+                if (imageLabels.getActiveLabels().length > 0) {
+                    console.log("Click out - chiusura di tutte le etichette");
+                    
+                    // Rimuovi ogni etichetta con l'animazione di zoom out
+                    imageLabels.getActiveLabels().forEach((label) => {
+                        imageLabels.removeLabelForPoint(label.point);
                     });
                 }
-                return; // Termina qui per evitare di gestire anche il click out
-            }
-            
-            // Se arriviamo qui, non è stato cliccato un punto
-            // Controlla se è stata cliccata un'etichetta
-            const labelMeshes = imageLabels.getActiveLabels().map(label => label.mesh);
-            const intersectsLabels = raycaster.intersectObjects(labelMeshes);
-            
-            if (intersectsLabels.length > 0) {
-                // L'utente ha cliccato su un'etichetta, non facciamo nulla qui
-                return;
-            }
-            
-            // Se arriviamo qui, è un click out (né su un punto né su un'etichetta)
-            // Chiudi tutte le etichette attive
-            if (imageLabels.getActiveLabels().length > 0) {
-                console.log("Click out - chiusura di tutte le etichette");
-                
-                // Rimuovi ogni etichetta con l'animazione di zoom out
-                imageLabels.getActiveLabels().forEach((label) => {
-                    imageLabels.removeLabelForPoint(label.point);
-                });
             }
         }
 
@@ -191,6 +224,8 @@ async function init() {
             // Aggiorna le etichette (posizione e orientamento)
             imageLabels.updateLabels(camera, group);
             renderer.render(scene, camera);
+            resizeRendererToDisplaySize(renderer);
+            //requestAnimationFrame(animate);
         }
 
         // Avvia l'animazione
@@ -198,18 +233,22 @@ async function init() {
 
         // Gestione del ridimensionamento della finestra
         window.addEventListener('resize', () => {
-            camera.aspect = window.innerWidth / window.innerHeight;
+            // Aggiorna le dimensioni in base al contenitore
+            const newWidth = globeContainer.clientWidth;
+            const newHeight = globeContainer.clientHeight;
+            
+            camera.aspect = newWidth / newHeight;
             camera.updateProjectionMatrix();
-            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.setSize(newWidth, newHeight);
         });
 
     } catch (error) {
         console.error("Errore durante il caricamento dei punti:", error);
         // Mostra messaggio di errore all'utente
-        loadingElement.textContent = 'Errore nel caricamento delle mappe. Riprova.';
-        loadingElement.style.color = 'red';
     }
 }
+
+
 
 // Avvia l'applicazione
 init().catch(error => {

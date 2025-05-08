@@ -1,14 +1,64 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="it">
 	<head>
 		<meta charset="utf-8">
-		<title>My first three.js app</title>
-		<script src="https://unpkg.com/@tailwindcss/browser@4"></script>
-		
-		<link rel="stylesheet" href="styles.css">
+    	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+    	<title>Mappe Storiche Digitali</title>
+    	<link rel="stylesheet" href="styles.css">
 	</head>
 	<body>
-		<canvas></canvas>
+		<header class="header">
+			<div class="logo">
+				<img src="./assets/Logo/logo-ks-white.svg" alt="Knowsly Logo">
+			</div>
+			<nav class="main-nav">
+				<ul>
+					<li><a href="#" class="nav-link">Soluzioni</a></li>
+					<li><a href="#" class="nav-link">Servizi</a></li>
+					<li><a href="#" class="nav-link">Digital Maps</a></li>
+					<li><a href="#" class="nav-link">Digital Library</a></li>
+					<li><a href="#" class="nav-link">Portfolio</a></li>
+					<li><a href="#" class="nav-link">Chi siamo</a></li>
+					<li><a href="#" class="nav-link">Contatti</a></li>
+					<li><a href="#" class="nav-link login-btn">Accedi</a></li>
+				</ul>
+			</nav>
+		</header> 
+		
+		<div id="maps-page" class="page">
+			<div class="sidebar">
+				<h2 id="comune-title">Comune di <span id="comune-name">Pesaro</span></h2>
+				
+				<div class="search-container">
+					<input type="text" id="search-map" placeholder="Cerca una mappa">
+					<button id="search-btn">
+						<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+							<circle cx="11" cy="11" r="8"></circle>
+							<line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+						</svg>
+					</button>
+				</div>
+				
+				<div class="maps-category">
+					<h3>Mappe storiche</h3>
+					<div class="maps-list" id="historical-maps">
+						<!-- Le mappe saranno aggiunte dinamicamente qui -->
+					</div>
+				</div>
+			</div>
+			
+			<div class="main-content">
+				<div class="globe-container">
+					<canvas id="maps-globe-canvas"></canvas>
+				</div>
+				
+				<div class="zoom-controls">
+					<button id="zoom-in">+</button>
+					<button id="zoom-out">-</button>
+				</div>
+			</div>
+		</div>
+	
 		<script type="module" src="src/main.js"></script>
 	</body>
 </html>
