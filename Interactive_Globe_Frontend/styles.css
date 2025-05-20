@@ -18,13 +18,14 @@ body {
 
 /* Header e navigazione */
 .header {
-  background-color: #6b4c0a; /* Marrone scuro come nell'immagine */
+  background-color: #523802; /* Marrone scuro come nell'immagine */
   color: white;
   display: flex;
   justify-content: space-between;
   align-items: center;
   padding: 0.8rem 2rem;
   height: 70px;
+  border-bottom: 2px solid #9A7733;
 }
 
 .logo img {
@@ -65,7 +66,7 @@ body {
 /* Sidebar */
 .sidebar {
   width: 300px;
-  background-color: #614300; /* Marrone più scuro */
+  background-color: #624608; /* Marrone più scuro */
   color: white;
   padding: 1.5rem;
   display: flex;

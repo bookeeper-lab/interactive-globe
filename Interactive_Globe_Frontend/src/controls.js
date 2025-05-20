@@ -5,7 +5,7 @@ import gsap from 'gsap';
  */
 export function setupControls(camera, group, autoRotateController) {
     // Configurazione zoom
-    const minZoom = 8;
+    const minZoom = 7;
     const maxZoom = 30;
     
     const globeContainer = document.querySelector('.globe-container');

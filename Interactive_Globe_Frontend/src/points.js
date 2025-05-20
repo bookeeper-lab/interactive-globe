@@ -9,13 +9,14 @@ export class Point {
         this.description = description;
         this.image = image;
         this.mesh = this.createMesh();
-        //this.createPulsatingEffect();
+        this.createBlinkingEffect(); 
+
     }
 
     createMesh() {
         const group = new THREE.Group();
         
-        const markerColor = 0xcd2d1b;
+        const markerColor = 0x8b1f0c;
         
         // Materiale principale con effetto metallico dorato
         const material = new THREE.MeshPhongMaterial({ 
@@ -24,7 +25,8 @@ export class Point {
             opacity: 1,
             specular: 0x943126,
             shininess: 40,
-            emissiveIntensity: 0.6 
+            //emissive: markerColor,
+            emissiveIntensity: 0.6, 
         });
         
         // Fattore di riduzione della dimensione (0.6 = 60% della dimensione originale)
@@ -71,15 +73,47 @@ export class Point {
         return group;
     }
 
-    createPulsatingEffect() {
+
+
+    createBlinkingEffect() {
+        const sphere = this.mesh.children[0];
+        const cone = this.mesh.children[1];
         
-        // Leggera oscillazione per dare vita al marker
-        gsap.to(this.mesh.position, {
-            y: this.mesh.position.y + 0.05,
-            duration: 2,
+        // Colore originale del marker
+        const originalColor = new THREE.Color(0xa6251c);
+        // Colore leggermente più luminoso per l'effetto di illuminazione
+        const brightColor = new THREE.Color(0xe83a2d);
+        
+        // Salva riferimenti ai materiali
+        const materials = [sphere.material, cone.material];
+        
+        // Creiamo una variabile di controllo per l'animazione
+        const animationControl = { value: 0 };
+        
+        // Una singola animazione che controlla tutto
+        gsap.to(animationControl, {
+            value: 1,
+            duration: 1.3,
             repeat: -1,
             yoyo: true,
-            ease: "sine.inOut"
+            ease: "sine.inOut",
+            onUpdate: function() {
+                const t = animationControl.value;
+                
+                // Applica il valore corrente dell'animazione a entrambi i materiali
+                materials.forEach(material => {
+                    // Colore base interpolato
+                    const currentColor = originalColor.clone().lerp(brightColor, t * 0.5);
+                    material.color.copy(currentColor);
+                    
+                    // Colore emissivo correlato
+                    const emissiveColor = currentColor.clone().multiplyScalar(0.7);
+                    material.emissive.copy(emissiveColor);
+                    
+                    // Intensità emissiva correlata
+                    material.emissiveIntensity = 0.3 + (t * 0.2);
+                });
+            }
         });
     }
 }
