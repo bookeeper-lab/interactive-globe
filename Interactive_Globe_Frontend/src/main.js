@@ -137,7 +137,7 @@ async function init() {
         }
 
         function handleClick(event) {
-            // Ottieni le coordinate del mouse relativamente al contenitore del globo
+           // Ottieni le coordinate del mouse relativamente al contenitore del globo
             const rect = globeContainer.getBoundingClientRect();
             
             // Verifica se il click è avvenuto all'interno del contenitore
@@ -162,11 +162,34 @@ async function init() {
                 // Raccogli tutti i sotto-oggetti di ogni punto per il raycasting
                 const allPointObjects = [];
                 points.forEach(point => {
-                    // Associa ogni mesh figlio al suo punto parent per recuperarlo dopo
-                    point.mesh.children.forEach(childMesh => {
-                        childMesh.userData.parentPoint = point;
-                        allPointObjects.push(childMesh);
-                    });
+                    // Controllo se il punto è visibile (di fronte alla telecamera)
+                    const pointPosition = new THREE.Vector3().setFromMatrixPosition(point.mesh.matrixWorld);
+                    const cameraDirection = new THREE.Vector3(0, 0, -1).applyQuaternion(camera.quaternion);
+                    const pointDirection = new THREE.Vector3().subVectors(pointPosition, camera.position).normalize();
+                    
+                    // Calcola il prodotto scalare tra la direzione della camera e la direzione del punto
+                    // Se è positivo, il punto è di fronte alla telecamera
+                    const dotProduct = cameraDirection.dot(pointDirection);
+                    
+                    // Controllo aggiuntivo: ray casting dal punto alla camera per vedere se è ostruito dal globo
+                    const raycasterFromPoint = new THREE.Raycaster();
+                    raycasterFromPoint.set(pointPosition, new THREE.Vector3().subVectors(camera.position, pointPosition).normalize());
+                    
+                    // Esegui il ray cast contro il globo (assumendo che sia l'elemento 0 nel gruppo)
+                    const globeMesh = group.children[0]; // Il primo elemento del gruppo dovrebbe essere il globo
+                    const intersections = raycasterFromPoint.intersectObject(globeMesh);
+                    
+                    // Se dotProduct > 0 (punto davanti alla camera) e non ci sono intersezioni con il globo
+                    // allora il punto è visibile e cliccabile
+                    const isVisible = dotProduct > 0 && intersections.length === 0;
+                    
+                    if (isVisible) {
+                        // Associa ogni mesh figlio al suo punto parent per recuperarlo dopo
+                        point.mesh.children.forEach(childMesh => {
+                            childMesh.userData.parentPoint = point;
+                            allPointObjects.push(childMesh);
+                        });
+                    }
                 });
                 
                 // Controlla se è stato cliccato un punto

@@ -286,3 +286,47 @@ export function rotateGlobeToPoint(group, point, camera, callback) {
         onComplete: callback
     });
 }
+
+export function isPointVisible(point, camera, group) {
+    // 1. Ottieni la posizione del punto nel world space
+    const pointPosition = new THREE.Vector3();
+    point.mesh.getWorldPosition(pointPosition);
+    
+    // 2. Verifica se il punto è di fronte alla telecamera usando il prodotto scalare
+    const cameraDirection = new THREE.Vector3(0, 0, -1).applyQuaternion(camera.quaternion);
+    const pointDirection = new THREE.Vector3().subVectors(pointPosition, camera.position).normalize();
+    
+    // Se il prodotto scalare è negativo, il punto è dietro la camera
+    const dotProduct = cameraDirection.dot(pointDirection);
+    if (dotProduct <= 0) {
+        return false;
+    }
+    
+    // 3. Verifica se il punto è ostruito dal globo usando raycasting
+    const raycaster = new THREE.Raycaster();
+    raycaster.set(camera.position, pointDirection);
+    
+    // Trova il mesh del globo nel gruppo
+    const globeMesh = group.children[0]; // Assumendo che il globo sia il primo elemento del gruppo
+    
+    // Esegui il raycast solo contro il globo per verificare le intersezioni
+    const intersects = raycaster.intersectObject(globeMesh);
+    
+    if (intersects.length > 0) {
+        // Se c'è un'intersezione, calcola la distanza tra la camera e il punto
+        const distanceToPoint = camera.position.distanceTo(pointPosition);
+        
+        // Calcola la distanza tra la camera e l'intersezione più vicina
+        const distanceToIntersection = intersects[0].distance;
+        
+        // Se la distanza all'intersezione è minore della distanza al punto,
+        // significa che il punto è ostruito dal globo
+        if (distanceToIntersection < distanceToPoint) {
+            return false;
+        }
+    }
+    
+    // Se siamo arrivati qui, il punto è visibile
+    return true;
+}
+
