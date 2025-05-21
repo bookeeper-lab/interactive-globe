@@ -10,6 +10,9 @@ const coordinatesRoutes = require('./api/Coordinates');
 const syncMapsDirectory = require('./service/mapsSync');
 
 const app = express();
+
+app.use('/maps_static', express.static(process.env.MAPS_DIR));
+
 app.use(express.json());
 app.use(cors());
 

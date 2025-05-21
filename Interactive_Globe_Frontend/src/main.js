@@ -7,11 +7,17 @@ import fragmentShader from './shader/fragment.glsl';
 import atmosferaVertex from './shader/atmosferaVertex.glsl';
 import atmosferaFragment from './shader/atmosferaFragment.glsl';
 import { createImageLabels } from './createImageLabels.js';
+import { MapsUI } from './mapsUI.js';
 
 
 
 // Funzione principale asincrona
 async function init() {
+
+    const mapsUI = new MapsUI();
+
+    await mapsUI.loadMapsForCurrentDigitalLibrary();
+
 
     // Inizializza scena, camera e renderer
     const scene = new THREE.Scene();

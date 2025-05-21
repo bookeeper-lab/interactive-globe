@@ -39,6 +39,14 @@ body {
   gap: 1.5rem;
 }
 
+.no-maps, .error-message {
+  color: rgba(255, 255, 255, 0.8);
+  text-align: center;
+  padding: 1rem;
+  background-color: rgba(0, 0, 0, 0.2);
+  border-radius: 4px;
+}
+
 .nav-link {
   color: white;
   text-decoration: none;
@@ -65,14 +73,16 @@ body {
 
 /* Sidebar */
 .sidebar {
-  width: 300px;
+  width: 340px;
   background-color: #624608; /* Marrone più scuro */
   color: white;
   padding: 1.5rem;
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
-  overflow-y: auto;
+  overflow-y: auto; /* Consente lo scroll verticale */
+  height: calc(100vh - 70px); /* Altezza totale meno header */
+  flex-shrink: 0; /* Impedisce alla sidebar di ridursi */
 }
 
 #comune-title {
@@ -127,6 +137,14 @@ body {
   transition: border-color 0.3s;
 }
 
+.map-image {
+  width: 100%;
+  height: auto;
+  max-height: 150px; /* Limita l'altezza dell'immagine */
+  object-fit: cover; /* Mantiene le proporzioni coprendo il contenitore */
+  display: block;
+}
+
 .map-item img {
   width: 100%;
   display: block;
@@ -172,21 +190,26 @@ canvas {
 .zoom-controls {
   position: absolute;
   right: 20px;
-  top: 50%;
+  top: 10%;
   transform: translateY(-50%);
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
   z-index: 10;
 }
 
-.zoom-controls button {
-  width: 40px;
-  height: 40px;
-  background-color: #614300;
+.zoom-container {
+  display: flex;
+  flex-direction: column;
+  width: 45px;
+  height: 100px;
+  border-radius: 10px;
+  overflow: hidden;
+  border: 1px solid #3d2a00;
+}
+
+.zoom-btn {
+  flex: 1;
+  background-color: #7b5613;
   color: white;
   border: none;
-  border-radius: 4px;
   font-size: 1.5rem;
   cursor: pointer;
   display: flex;
@@ -194,15 +217,39 @@ canvas {
   align-items: center;
 }
 
-.zoom-controls button:hover {
-  background-color: #7a5500;
+.zoom-btn.top {
+  background-color: rgba(106, 73, 15, 0.85);
+}
+
+.zoom-btn.bottom {
+  background-color: rgba(123, 87, 19, 0.779);
+  border-top: 1px solid #5a3d0a;
+}
+
+.zoom-btn:hover {
+  filter: brightness(1.1);
 }
 
 /* Aggiungi stile per le miniature delle mappe */
 #historical-maps {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  overflow-y: auto; /* Permette lo scroll all'interno della lista */
+  padding-right: 5px; /* Spazio per la barra di scorrimento */
+}
+
+.map-wrapper {
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  border-radius: 4px;
+  overflow: hidden;
+  transition: border-color 0.3s;
+  background-color: rgba(0, 0, 0, 0.1);
+  cursor: pointer;
+}
+
+.map-wrapper:hover {
+  border-color: rgba(255, 255, 255, 0.6);
 }
 
 .map-thumbnail {
@@ -211,6 +258,15 @@ canvas {
   overflow: hidden;
   cursor: pointer;
   transition: all 0.3s;
+}
+
+.map-title {
+  padding: 8px;
+  font-size: 0.9rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: rgba(255, 255, 255, 0.9);
 }
 
 .map-thumbnail:hover {
@@ -249,9 +305,12 @@ canvas {
   }
   
   .main-content {
-    height: 60vh;
-    order: 1;
-  }
+  flex: 1;
+  position: relative;
+  background-color: #f5efe0; /* Colore carta/pergamena */
+  overflow: hidden; /* Impedisce lo scroll nel contenuto principale */
+  height: calc(100vh - 70px); /* Altezza totale meno header */
+}
   
   .header {
     flex-direction: column;
@@ -263,5 +322,23 @@ canvas {
     flex-wrap: wrap;
     justify-content: center;
     margin-top: 1rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .sidebar {
+    width: 100%;
+    height: auto;
+    max-height: 40vh; /* Limita l'altezza della sidebar su mobile */
+  }
+  
+  .map-image {
+    max-height: 120px; /* Immagini più piccole su mobile */
+  }
+  
+  #historical-maps {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 10px;
   }
 }

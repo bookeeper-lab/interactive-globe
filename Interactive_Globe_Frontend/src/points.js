@@ -124,7 +124,7 @@ export async function createPoints(group) {
         const municipalityId = localStorage.getItem('selectedMunicipalityId') || 1;
         
         const apiUrl = `${import.meta.env.VITE_BACKEND_PORT}/api/maps/${municipalityId}`;
-        console.log('Fetching maps from:', apiUrl);
+        //console.log('Fetching maps from:', apiUrl);
         
         const response = await fetch(apiUrl);
         

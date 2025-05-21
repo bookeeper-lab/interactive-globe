@@ -10,26 +10,36 @@ export function setupControls(camera, group, autoRotateController) {
     
     const globeContainer = document.querySelector('.globe-container');
 
-
     function onWheel(event) {
-        event.preventDefault();
+        // Verifica se l'evento si è verificato all'interno del container del globo
+        const rect = globeContainer.getBoundingClientRect();
         
-        const zoomSpeed = 0.8;
-        const delta = event.deltaY * zoomSpeed;
-        
-        const newZ = Math.min(
-            Math.max(camera.position.z + delta * 0.01, minZoom),
-            maxZoom
-        );
-        
-        gsap.to(camera.position, {
-            z: newZ,
-            duration: 0.5,
-            ease: "power2.out"
-        });
+        if (
+            event.clientX >= rect.left && 
+            event.clientX <= rect.right && 
+            event.clientY >= rect.top && 
+            event.clientY <= rect.bottom
+        ) {
+            event.preventDefault();
+            
+            const zoomSpeed = 0.8;
+            const delta = event.deltaY * zoomSpeed;
+            
+            const newZ = Math.min(
+                Math.max(camera.position.z + delta * 0.01, minZoom),
+                maxZoom
+            );
+            
+            gsap.to(camera.position, {
+                z: newZ,
+                duration: 0.5,
+                ease: "power2.out"
+            });
+        }
     }
     
-    document.addEventListener('wheel', onWheel, { passive: false });
+    // Aggiungi l'evento wheel solo al contenitore del globo invece che all'intero documento
+    globeContainer.addEventListener('wheel', onWheel, { passive: false });
     
     // Configurazione trascinamento
     let isDragging = false;
@@ -51,7 +61,6 @@ export function setupControls(camera, group, autoRotateController) {
     
     function onMouseDown(event) {
         // Verifica se il click è avvenuto all'interno del container del globo
-        const globeContainer = document.querySelector('.globe-container');
         const rect = globeContainer.getBoundingClientRect();
         
         // Verifica se il click è all'interno del container del globo
@@ -80,11 +89,13 @@ export function setupControls(camera, group, autoRotateController) {
     }
     
     function onMouseUp() {
-        isDragging = false;
-        
-        // Applica inerzia solo se c'è una velocità significativa
-        if (Math.abs(inertia.x) > 0.001 || Math.abs(inertia.y) > 0.001) {
-            animateInertia();
+        if (isDragging) {
+            isDragging = false;
+            
+            // Applica inerzia solo se c'è una velocità significativa
+            if (Math.abs(inertia.x) > 0.001 || Math.abs(inertia.y) > 0.001) {
+                animateInertia();
+            }
         }
     }
     
@@ -147,17 +158,28 @@ export function setupControls(camera, group, autoRotateController) {
     
     // Gestione eventi touch per dispositivi mobili
     function onTouchStart(event) {
-        if (event.touches.length === 1) {
-            isDragging = true;
-            previousMousePosition.x = event.touches[0].clientX;
-            previousMousePosition.y = event.touches[0].clientY;
-            
-            // Reset dell'inerzia
-            inertia.x = 0;
-            inertia.y = 0;
-            
-            // Ferma animazioni in corso
-            gsap.killTweensOf(group.rotation);
+        // Verifica se il touch è avvenuto all'interno del container del globo
+        const rect = globeContainer.getBoundingClientRect();
+        const touch = event.touches[0];
+        
+        if (
+            touch.clientX >= rect.left && 
+            touch.clientX <= rect.right && 
+            touch.clientY >= rect.top && 
+            touch.clientY <= rect.bottom
+        ) {
+            if (event.touches.length === 1) {
+                isDragging = true;
+                previousMousePosition.x = touch.clientX;
+                previousMousePosition.y = touch.clientY;
+                
+                // Reset dell'inerzia
+                inertia.x = 0;
+                inertia.y = 0;
+                
+                // Ferma animazioni in corso
+                gsap.killTweensOf(group.rotation);
+            }
         }
     }
     
@@ -185,8 +207,16 @@ export function setupControls(camera, group, autoRotateController) {
             previousMousePosition.x = touch.clientX;
             previousMousePosition.y = touch.clientY;
             
-            // Previeni lo scrolling della pagina
-            event.preventDefault();
+            // Previeni lo scrolling della pagina solo se siamo dentro il globo
+            const rect = globeContainer.getBoundingClientRect();
+            if (
+                touch.clientX >= rect.left && 
+                touch.clientX <= rect.right && 
+                touch.clientY >= rect.top && 
+                touch.clientY <= rect.bottom
+            ) {
+                event.preventDefault();
+            }
             
             // Disattiva la rotazione automatica
             if (autoRotateController && typeof autoRotateController.disable === 'function') {
@@ -206,7 +236,7 @@ export function setupControls(camera, group, autoRotateController) {
         }
     }
     
-    // Aggiungi gli event listener
+    // Aggiungi gli event listener al documento per il mouse
     document.addEventListener('mousedown', onMouseDown);
     document.addEventListener('mousemove', onMouseMove);
     document.addEventListener('mouseup', onMouseUp);
@@ -217,16 +247,50 @@ export function setupControls(camera, group, autoRotateController) {
     document.addEventListener('touchmove', onTouchMove, { passive: false });
     document.addEventListener('touchend', onTouchEnd);
     
+    // Supporto per i controlli di zoom tramite pulsanti nell'UI
+    const zoomInButton = document.getElementById('zoom-in');
+    const zoomOutButton = document.getElementById('zoom-out');
+    
+    if (zoomInButton) {
+        zoomInButton.addEventListener('click', () => {
+            const newZ = Math.max(camera.position.z - 1, minZoom);
+            gsap.to(camera.position, {
+                z: newZ,
+                duration: 0.5,
+                ease: "power2.out"
+            });
+        });
+        
+    }
+    
+    if (zoomOutButton) {
+        zoomOutButton.addEventListener('click', () => {
+            const newZ = Math.min(camera.position.z + 1, maxZoom);
+            gsap.to(camera.position, {
+                z: newZ,
+                duration: 0.5,
+                ease: "power2.out"
+            });
+        });
+        
+    }
+    
     return {
         cleanup: () => {
-            document.removeEventListener('wheel', onWheel);
+            // Rimuovi l'evento wheel dal contenitore del globo invece che dal documento
+            globeContainer.removeEventListener('wheel', onWheel);
+            
             document.removeEventListener('mousedown', onMouseDown);
             document.removeEventListener('mousemove', onMouseMove);
             document.removeEventListener('mouseup', onMouseUp);
             document.removeEventListener('mouseleave', onMouseUp);
+            
             document.removeEventListener('touchstart', onTouchStart);
             document.removeEventListener('touchmove', onTouchMove);
             document.removeEventListener('touchend', onTouchEnd);
+            
+            if (zoomInButton) zoomInButton.removeEventListener('click', () => {});
+            if (zoomOutButton) zoomOutButton.removeEventListener('click', () => {});
         }
     };
 }
