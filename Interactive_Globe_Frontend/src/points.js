@@ -10,7 +10,6 @@ export class Point {
         this.image = image;
         this.mesh = this.createMesh();
         this.createBlinkingEffect(); 
-
     }
 
     createMesh() {
@@ -116,6 +115,8 @@ export class Point {
             }
         });
     }
+
+    
 }
 
     // Modifica in points.js nella funzione createPoints
@@ -329,4 +330,8 @@ export function isPointVisible(point, camera, group) {
     // Se siamo arrivati qui, il punto è visibile
     return true;
 }
+
+
+
+
 

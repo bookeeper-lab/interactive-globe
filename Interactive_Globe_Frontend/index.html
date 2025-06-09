@@ -5,8 +5,13 @@
     	<meta name="viewport" content="width=device-width, initial-scale=1.0">
     	<title>Mappe Storiche Digitali</title>
     	<link rel="stylesheet" href="styles.css">
+		<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+		<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-4Q6Gf2aSP4eDXB8Miphtr37CMZZQ5oXLH2yaXMJ2w8e2ZtHTl7GptT4jmndRuHDT" crossorigin="anonymous">
 	</head>
 	<body>
+		<div id="loader" class="loader">
+			<div class="spinner"></div>
+		</div>
 		<header class="header">
 			<div class="logo">
 				<img src="./assets/Logo/logo-ks-white.svg" alt="Knowsly Logo">
@@ -26,42 +31,57 @@
 		</header> 
 		
 		<div id="maps-page" class="page">
-			<div class="sidebar">
-				<h2 id="comune-title">Comune di <span id="comune-name">Pesaro</span></h2>
+			
+		<div class="main-content">
+			<div class="search-comune-container">
+				<div class="comune-nome">Comune di <span>Pesaro</span></div>
+				<div class="input-group search-box">
+					<input type="text" class="form-control custom-input" placeholder="Cerca un luogo" aria-label="Cerca un luogo">
+					<span class="input-group-text search-icon">
+						<i class="bi bi-search"></i>
+					</span>
+				</div>
+			</div>
+
+			<!-- Pulsante helper posizionato separatamente in basso a sinistra -->
+			<button type="button" class="btn helper">?</button>
+			
+			<div class="globe-container">
+				<canvas id="maps-globe-canvas"></canvas>
+			</div>
 				
-				<div class="search-container">
-					<input type="text" id="search-map" placeholder="Cerca una mappa">
-					<button id="search-btn">
-						<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-							<circle cx="11" cy="11" r="8"></circle>
-							<line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+			<div class="zoom-controls">
+				<div class="zoom-container">
+				<button id="zoom-in" class="zoom-btn top">+</button>
+				<button id="zoom-out" class="zoom-btn bottom">−</button>
+				</div>
+				<div class="controls">
+					<button class="reposition" data-bs-toggle="tooltip" data-bs-placement="right" title="Riposiziona il globo">
+						<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-crosshair" viewBox="0 0 16 16">
+						<path d="M8.5.5a.5.5 0 0 0-1 0v.518A7 7 0 0 0 1.018 7.5H.5a.5.5 0 0 0 0 1h.518A7 7 0 0 0 7.5 14.982v.518a.5.5 0 0 0 1 0v-.518A7 7 0 0 0 14.982 8.5h.518a.5.5 0 0 0 0-1h-.518A7 7 0 0 0 8.5 1.018zm-6.48 7A6 6 0 0 1 7.5 2.02v.48a.5.5 0 0 0 1 0v-.48a6 6 0 0 1 5.48 5.48h-.48a.5.5 0 0 0 0 1h.48a6 6 0 0 1-5.48 5.48v-.48a.5.5 0 0 0-1 0v.48A6 6 0 0 1 2.02 8.5h.48a.5.5 0 0 0 0-1zM8 10a2 2 0 1 0 0-4 2 2 0 0 0 0 4"/>
+						</svg>
+					</button>
+  					<button class="viewAll" data-bs-toggle="tooltip" title="Visualizza tutto">
+						<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-collection" viewBox="0 0 16 16">
+						<path d="M2.5 3.5a.5.5 0 0 1 0-1h11a.5.5 0 0 1 0 1zm2-2a.5.5 0 0 1 0-1h7a.5.5 0 0 1 0 1zM0 13a1.5 1.5 0 0 0 1.5 1.5h13A1.5 1.5 0 0 0 16 13V6a1.5 1.5 0 0 0-1.5-1.5h-13A1.5 1.5 0 0 0 0 6zm1.5.5A.5.5 0 0 1 1 13V6a.5.5 0 0 1 .5-.5h13a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-.5.5z"/>
 						</svg>
 					</button>
 				</div>
-				
-				<div class="maps-category">
-					<h3>Mappe storiche</h3>
-					<div class="maps-list" id="historical-maps">
-						<!-- Le mappe saranno aggiunte dinamicamente qui -->
-						 
-					</div>
-				</div>
 			</div>
-			
-			<div class="main-content">
-				<div class="globe-container">
-					<canvas id="maps-globe-canvas"></canvas>
-				</div>
-				
-				<div class="zoom-controls">
-					<div class="zoom-container">
-						<button id="zoom-in" class="zoom-btn top">+</button>
-    					<button id="zoom-out" class="zoom-btn bottom">−</button>
-					</div>
-				</div>
-			</div>
+		
 		</div>
 	
 		<script type="module" src="src/main.js"></script>
+		<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/js/bootstrap.bundle.min.js" integrity="sha384-/bQdsTh/1piHFISQ7uoZk0h1zFfZLr5BLYN03G+LLP8kk6RxyJDh1JgfQR8F0sjx" crossorigin="anonymous"></script>
+		<script>
+			document.addEventListener("DOMContentLoaded", function () {
+				const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+				tooltipTriggerList.forEach(function (tooltipTriggerEl) {
+				new bootstrap.Tooltip(tooltipTriggerEl);
+				});
+			});
+		</script>
+
+
 	</body>
 </html>

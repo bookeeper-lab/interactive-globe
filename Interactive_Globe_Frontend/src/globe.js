@@ -4,8 +4,10 @@ import * as THREE from 'three';
  * Crea il globo 3D e le componenti associate (atmosfera, stelle)
  */
 export function createGlobe({ scene, vertexShader, fragmentShader, atmosferaVertex, atmosferaFragment }) {
+
+    
     // Crea il globo
-    const globe = new THREE.Mesh(
+     const globe = new THREE.Mesh(
         new THREE.SphereGeometry(5, 50, 50),
         new THREE.ShaderMaterial({
             vertexShader,
@@ -16,10 +18,10 @@ export function createGlobe({ scene, vertexShader, fragmentShader, atmosferaVert
                 },
                 lightPosition: { value: new THREE.Vector3(10, 5, 5) },
                 lightColor: { value: new THREE.Vector3(1.0, 1.0, 1.0) }, // Colore bianco
-                ambientStrength: { value: 0.3 }
+                 ambientStrength: { value: 0.4 }
             }
         })
-    );
+    ); 
     
     // Crea un gruppo per gestire il globo e i punti
     const group = new THREE.Group();
@@ -29,12 +31,13 @@ export function createGlobe({ scene, vertexShader, fragmentShader, atmosferaVert
     // Crea l'atmosfera
     const atmosfera = new THREE.Mesh(
         new THREE.SphereGeometry(5, 50, 50),
-        new THREE.ShaderMaterial({
+       
+         new THREE.ShaderMaterial({
             vertexShader: atmosferaVertex,
             fragmentShader: atmosferaFragment,
             blending: THREE.AdditiveBlending,
             side: THREE.BackSide
-        })
+        }) 
     );
     
     atmosfera.scale.set(1.1, 1.1, 1.1);

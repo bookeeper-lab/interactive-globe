@@ -1,4 +1,4 @@
-import { MapsService } from "./mapsService";
+/* import { MapsService } from "./mapsService";
 
 export class MapsUI {
      constructor() {
@@ -8,19 +8,17 @@ export class MapsUI {
         this.searchButton = document.getElementById('search-btn');
         this.comuneNameElement = document.getElementById('comune-name');
         
-        // Uso un ID predefinito (1) per lo sviluppo
+        // Uso un ID predefinito (1) per la digital library di Pesaro
         // Normalmente questo valore verrebbe preso dall'elemento HTML
-        this.comuneId = 1; // ID predefinito impostato a 1
+        this.comuneId = 1;
         this.comuneName = this.comuneNameElement ? this.comuneNameElement.textContent : 'Comune Default';
         
         console.log(`Inizializzato MapsUI per comune: ${this.comuneName} (ID predefinito: ${this.comuneId})`);
         
-        // Opzionalmente, imposta gli event listener
         this.setupEventListeners();
     }
     
     setupEventListeners() {
-        // Esempio di setup degli event listener
         if (this.searchButton) {
             this.searchButton.addEventListener('click', () => {
                 if (this.searchInput && this.searchInput.value) {
@@ -150,7 +148,6 @@ export class MapsUI {
     selectMap(map) {
         // Implementa la logica per selezionare una mappa
         console.log("Mappa selezionata:", map);
-        // Ad esempio, potrebbe emettere un evento personalizzato
         const event = new CustomEvent('mapSelected', { detail: map });
         document.dispatchEvent(event);
     }
@@ -160,3 +157,4 @@ export class MapsUI {
     }
 }
     
+ */

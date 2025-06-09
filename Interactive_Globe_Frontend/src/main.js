@@ -7,16 +7,16 @@ import fragmentShader from './shader/fragment.glsl';
 import atmosferaVertex from './shader/atmosferaVertex.glsl';
 import atmosferaFragment from './shader/atmosferaFragment.glsl';
 import { createImageLabels } from './createImageLabels.js';
-import { MapsUI } from './mapsUI.js';
+//import { MapsUI } from './mapsUI.js';
 
 
 
 // Funzione principale asincrona
 async function init() {
 
-    const mapsUI = new MapsUI();
+    //const mapsUI = new MapsUI();
 
-    await mapsUI.loadMapsForCurrentDigitalLibrary();
+    //await mapsUI.loadMapsForCurrentDigitalLibrary();
 
 
     // Inizializza scena, camera e renderer
@@ -25,7 +25,7 @@ async function init() {
     const containerWidth = globeContainer.clientWidth;
     const containerHeight = globeContainer.clientHeight;
 
-    const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+    const camera = new THREE.PerspectiveCamera(55, window.innerWidth / window.innerHeight, 0.1, 1000);
     camera.position.z = 12;
 
     const renderer = new THREE.WebGLRenderer({
@@ -259,6 +259,12 @@ async function init() {
 
         // Avvia l'animazione
         renderer.setAnimationLoop(animate);
+        const loaderDiv = document.getElementById('loader');
+        if (loaderDiv) {
+            loaderDiv.style.opacity = '0';
+            setTimeout(() => loaderDiv.style.display = 'none', 500); // dopo la transizione
+        }
+
 
         // Gestione del ridimensionamento della finestra
         window.addEventListener('resize', () => {

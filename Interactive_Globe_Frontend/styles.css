@@ -8,36 +8,57 @@
 
 body {
   font-family: Arial, Helvetica, sans-serif;
-  background-color: #f5efe0; /* Colore simile alla carta antica/pergamena */
+  background-color: #f5efe0; 
   color: #333;
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  overflow: hidden; /* Previene lo scroll indesiderato */
+  overflow: hidden;
 }
 
 /* Header e navigazione */
 .header {
-  background-color: #523802; /* Marrone scuro come nell'immagine */
+  background-color: #725823; 
   color: white;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 0.8rem 2rem;
+  padding: 0.9rem 2rem;
   height: 70px;
   border-bottom: 2px solid #9A7733;
 }
 
 .logo img {
-  height: 35px;
+  height: 45px;
   margin-top: 5px;
+  margin-left: 15px;
+}
+
+
+.main-nav {
+  display: flex;
+  align-items: center;     /* centra verticalmente */
+  justify-content: center; /* centra orizzontalmente */
+  height: 80px;            /* altezza fissa del contenitore */
 }
 
 .main-nav ul {
   display: flex;
   list-style: none;
-  gap: 1.5rem;
+  gap: 2rem;
+  margin: 0;
+  padding: 0;
 }
+
+.nav-link {
+  text-decoration: none;
+  color: #333;
+  height: 100%;            /* prende tutta l'altezza del nav */
+  display: flex;
+  align-items: center;     /* centra il testo verticalmente */
+  font-size: 1rem;
+}
+
 
 .no-maps, .error-message {
   color: rgba(255, 255, 255, 0.8);
@@ -71,112 +92,12 @@ body {
   height: calc(100vh - 70px); /* Altezza totale meno header */
 }
 
-/* Sidebar */
-.sidebar {
-  width: 340px;
-  background-color: #624608; /* Marrone più scuro */
-  color: white;
-  padding: 1.5rem;
-  display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
-  height: calc(100vh - 70px); /* Altezza totale meno header */
-  flex-shrink: 0; /* Impedisce alla sidebar di ridursi */
-  overflow: hidden; /* Rimuove l'overflow dalla sidebar principale */
-}
 
-#comune-title {
-  font-size: 2rem;
-  font-weight: normal;
-  margin-bottom: 0; /* Rimuove il margin extra */
-  flex-shrink: 0; /* Non si riduce */
-}
-
-.search-container {
-  display: flex;
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  border-radius: 4px;
-  overflow: hidden;
-  flex-shrink: 0; /* Non si riduce */
-}
-
-#search-map {
-  flex: 1;
-  padding: 0.7rem;
-  background-color: transparent;
-  border: none;
-  color: white;
-}
-
-#search-map::placeholder {
-  color: rgba(255, 255, 255, 0.7);
-}
-
-#search-btn {
-  background-color: transparent;
-  border: none;
-  color: white;
-  cursor: pointer;
-  padding: 0 0.7rem;
-}
-
-.maps-category {
-  flex: 1; /* Occupa lo spazio rimanente */
-  display: flex;
-  flex-direction: column;
-  min-height: 0; /* Permette al contenuto di essere scrollabile */
-}
-
-.maps-category h3 {
-  font-size: 1.3rem;
-  margin-bottom: 1rem;
-  font-weight: normal;
-  flex-shrink: 0;
-}
-
-.maps-list {
-  flex: 1;
-  overflow-y: auto; /* Scroll solo per la lista delle mappe */
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-  padding-right: 5px; /* Spazio per la scrollbar */
-}
-
-/* Simulazione delle thumbnail delle mappe */
-.map-item {
-  border: 2px solid rgba(255, 255, 255, 0.2);
-  cursor: pointer;
-  transition: border-color 0.3s;
-}
-
-.map-image {
-  width: 100%;
-  height: auto;
-  max-height: 150px; /* Limita l'altezza dell'immagine */
-  object-fit: cover; /* Mantiene le proporzioni coprendo il contenitore */
-  display: block;
-}
-
-.map-item img {
-  width: 100%;
-  display: block;
-}
-
-.map-item:hover {
-  border-color: rgba(255, 255, 255, 0.6);
-}
-
-.map-item.active {
-  border-color: white;
-}
 
 /* Area principale con il globo */
 .main-content {
   flex: 1;
-  position: relative;
-  background-color: #f5efe0; /* Colore carta/pergamena */
-  overflow: hidden;
+  position: relative; 
 }
 
 .globe-container {
@@ -191,10 +112,10 @@ body {
 /* Correzione per il canvas del globo */
 canvas {
     position: absolute;
-    width: 100%;  /* Occupa tutta la larghezza */
-    height: 100%; /* Occupa tutta l'altezza */
-    object-fit: contain; /* Mantiene l'aspect ratio */
-    display: block; /* Rimuove eventuali spazi extra */
+    width: 100%;  
+    height: 100%; 
+    object-fit: contain; 
+    display: block; 
     top: 0;
     left: 0;
   }
@@ -203,19 +124,19 @@ canvas {
 .zoom-controls {
   position: absolute;
   right: 20px;
-  top: 10%;
-  transform: translateY(-50%);
+  top: 30%;
+  transform: translateY(-30%);
   z-index: 10;
 }
 
 .zoom-container {
   display: flex;
   flex-direction: column;
+  gap: 1px;
   width: 45px;
   height: 100px;
   border-radius: 10px;
   overflow: hidden;
-  border: 1px solid #3d2a00;
 }
 
 .zoom-btn {
@@ -236,59 +157,74 @@ canvas {
 
 .zoom-btn.bottom {
   background-color: rgba(123, 87, 19, 0.779);
-  border-top: 1px solid #5a3d0a;
+  
 }
 
 .zoom-btn:hover {
   filter: brightness(1.1);
 }
 
-/* Aggiungi stile per le miniature delle mappe */
-#historical-maps {
+.controls{
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
+  margin-top: 15px;
+  gap: 10px;
 }
 
-.map-wrapper {
-  border: 2px solid rgba(255, 255, 255, 0.2);
-  border-radius: 4px;
-  overflow: hidden;
-  transition: border-color 0.3s;
-  background-color: rgba(0, 0, 0, 0.1);
+.reposition {
+  width: 45px;
+  height: 45px;
+  border-radius: 50%;
+  background-color: #7b5613;
+  color: white;
+  border: none;
+  font-size: 1rem;
   cursor: pointer;
-  flex-shrink: 0; /* Impedisce alle mappe di ridursi */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transition: filter 0.2s;
+}
+.reposition:hover {
+  filter: brightness(1.3);
 }
 
-.map-wrapper:hover {
-  border-color: rgba(255, 255, 255, 0.6);
-}
 
-.map-thumbnail {
-  border: 2px solid rgba(255, 255, 255, 0.3);
-  width: 100%;
-  overflow: hidden;
+.viewAll{
+  width: 45px;
+  height: 45px;
+  border-radius: 50%;
+  background-color: #7b5613;
+  color: white;
+  border: none;
+  font-size: 1rem;
   cursor: pointer;
-  transition: all 0.3s;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transition: filter 0.2s;
 }
 
-.map-title {
-  padding: 8px;
-  font-size: 0.9rem;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  color: rgba(255, 255, 255, 0.9);
+.viewAll:hover {
+  filter: brightness(1.3);
 }
 
-.map-thumbnail:hover {
-  border-color: white;
+.tooltip-inner {
+  background-color: #333;
+  color: white;
+  padding: 6px 12px;
+  font-size: 14px;
+  border-radius: 8px;
 }
 
-.map-thumbnail img {
-  width: 100%;
-  display: block;
+.tooltip.bs-tooltip-right .tooltip-arrow::before {
+  border-right-color: #333;
 }
+
+
+
+
+
 
 /* Media query per schermi più piccoli */
 @media (max-width: 1024px) {
@@ -319,9 +255,9 @@ canvas {
   .main-content {
   flex: 1;
   position: relative;
-  background-color: #f5efe0; /* Colore carta/pergamena */
-  overflow: hidden; /* Impedisce lo scroll nel contenuto principale */
-  height: calc(100vh - 70px); /* Altezza totale meno header */
+  background-color: #f5efe0; 
+  overflow: hidden;
+  height: calc(100vh - 70px); 
 }
   
   .header {
@@ -336,21 +272,124 @@ canvas {
     margin-top: 1rem;
   }
 }
+.search-comune-container {
+  position: absolute;
+  top: 2rem;
+  left: 2rem;
+  z-index: 10;
+}
 
-@media (max-width: 768px) {
-  .sidebar {
-    width: 100%;
-    height: auto;
-    max-height: 40vh; /* Limita l'altezza della sidebar su mobile */
-  }
-  
-  .map-image {
-    max-height: 120px; /* Immagini più piccole su mobile */
-  }
-  
-  #historical-maps {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-    gap: 10px;
+.comune-nome {
+  font-size: 2.5rem;
+  font-weight: bold;
+  color: #4d3a18;
+  margin-bottom: 1rem;
+  font-family: 'Times New Roman', Times, serif;
+}
+.search-box {
+  max-width: 400px;
+  width: 100%;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  background-color: white;
+  border: 1px solid #ccc;
+}
+
+.custom-input {
+  border: none;
+  padding: 0.6rem 1rem;
+  background-color: white;
+  color: #333;
+  font-size: 16px;
+  flex: 1;
+}
+
+.custom-input:focus {
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+.search-icon {
+  background-color: white !important;
+  border: none !important;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 1rem;
+  color: #725823 !important;
+  font-size: 20px;
+  border-left: 1px solid transparent; /* niente divisione netta */
+  -webkit-text-stroke: 0.8px #725823;
+}
+
+
+
+.helper {
+  display: flex !important;
+  justify-content: center !important;
+  align-items: center !important;
+  position: absolute;
+  bottom: 2rem;  /* Posizionato in basso */
+  left: 2rem;    /* Allineato a sinistra */
+  z-index: 10;
+  background-color: #725823 !important;
+  color: white !important;
+  font-weight: 700 !important;
+  font-size: 25px !important;
+  border-radius: 50%;
+  width: 45px;
+  height: 45px;
+  border: none;
+}
+
+.helper:hover{
+  background-color: #9A7733 !important;
+}
+
+.globe-container {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  /* Aggiungi le dimensioni del tuo globo */
+}
+
+.zoom-controls {
+  position: absolute;
+  top: 6rem;
+  right: 2rem;
+  z-index: 10;
+}
+
+#loader {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: #5d510e7b; /* colore di sfondo, cambia se vuoi */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+  transition: opacity 0.5s ease;
+}
+
+.spinner {
+  border: 4px solid rgba(255, 255, 255, 0.1);
+  border-top: 4px solid #70561c;
+  border-radius: 50%;
+  width: 50px;
+  height: 50px;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
   }
 }
+
+
+
