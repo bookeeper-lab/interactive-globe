@@ -8,6 +8,7 @@ import atmosferaVertex from './shader/atmosferaVertex.glsl';
 import atmosferaFragment from './shader/atmosferaFragment.glsl';
 import { createImageLabels } from './createImageLabels.js';
 //import { MapsUI } from './mapsUI.js';
+import gsap from 'gsap';
 
 
 
@@ -136,8 +137,29 @@ async function init() {
             }
         }
 
+        let originalCameraPosition = null;
+
+        function zoomOut(camera) {
+                    if (!originalCameraPosition) {
+                        console.log("Posizione originale non salvata");
+                        return;
+                    }
+                    
+                    gsap.to(camera.position, {
+                        x: originalCameraPosition.x,
+                        y: originalCameraPosition.y,
+                        z: originalCameraPosition.z,
+                        duration: 1.0,
+                        ease: "power2.inOut",
+                        onComplete: () => {
+                            console.log("Zoom out completato");
+                            originalCameraPosition = null; 
+                        }
+                    });
+        }
+
         function handleClick(event) {
-           // Ottieni le coordinate del mouse relativamente al contenitore del globo
+            // Controlla se il click è avvenuto all'interno del contenitore del globo
             const rect = globeContainer.getBoundingClientRect();
             
             // Verifica se il click è avvenuto all'interno del contenitore
@@ -212,8 +234,58 @@ async function init() {
                         rotateGlobeToPoint(group, clickedPoint, camera, () => {
                             console.log("Rotazione completata");
                         });
+
+                        zoomToMiniaturesimultaneous(clickedPoint, camera, scene, originalCameraPosition);
                     }
                     return; // Termina qui per evitare di gestire anche il click out
+                }
+
+                function zoomToMiniaturesimultaneous(point, camera, scene, savedOriginalPosition) {
+                    console.log("Funzione zoom chiamata per punto:", point.name);
+                    
+                    // Salva la posizione originale
+                    if (!originalCameraPosition) {
+                        originalCameraPosition = camera.position.clone(); // Usa la posizione attuale della camera
+                        console.log("Posizione originale salvata:", originalCameraPosition);
+                    }
+                    
+                    // Attendi un momento per assicurarsi che l'etichetta sia stata creata
+                    setTimeout(() => {
+                        const activeLabels = imageLabels.getActiveLabels();
+                        console.log("Etichette attive:", activeLabels.length);
+                        
+                        const activeLabel = activeLabels.find(label => label.point === point);
+                        
+                        if (!activeLabel) {
+                            console.log("Etichetta non trovata per lo zoom. Etichette disponibili:", activeLabels);
+                            return;
+                        }
+                        
+                        // Calcola una posizione di zoom semplice - più vicina al globo
+                        const currentPosition = camera.position.clone();
+                        const centerPosition = new THREE.Vector3(0, 0, 0); // Centro del globo
+                        const direction = currentPosition.clone().sub(centerPosition).normalize();
+                        
+                        const zoomDistance = 8.8; // Distanza fissa per lo zoom (SI PUO REGOLARE)
+                        const targetPosition = direction.multiplyScalar(zoomDistance);
+                        // Anima lo zoom della camera
+                        gsap.to(camera.position, {
+                            x: targetPosition.x,
+                            y: targetPosition.y,
+                            z: targetPosition.z,
+                            duration: 1.5,
+                            ease: "power2.inOut",
+                            onStart: () => {
+                                console.log("Animazione zoom iniziata");
+                            },
+                            onUpdate: () => {
+                                console.log("Posizione camera durante animazione:", camera.position);
+                            },
+                            onComplete: () => {
+                                console.log("Zoom simultaneo completato");
+                            }
+                        });
+                    }, 100); // Attendi che l'etichetta sia completamente creata
                 }
                 
                 // Se arriviamo qui, non è stato cliccato un punto
@@ -222,7 +294,19 @@ async function init() {
                 const intersectsLabels = raycaster.intersectObjects(labelMeshes);
                 
                 if (intersectsLabels.length > 0) {
-                    // L'utente ha cliccato su un'etichetta, non facciamo nulla qui
+                    // L'utente ha cliccato su un'etichetta
+                    const clickedLabel = intersectsLabels[0].object;
+                    const labelData = imageLabels.getActiveLabels().find(label => label.mesh === clickedLabel);
+                    
+                    if (labelData) {
+                        console.log("Click su miniatura");
+                        
+                        // Qui puoi aggiungere logica aggiuntiva, come:
+                        // - Aprire una finestra di dettaglio
+                        // - Navigare a una pagina specifica
+                        // - Mostrare informazioni aggiuntive
+                    }
+                    
                     return;
                 }
                 
@@ -230,7 +314,7 @@ async function init() {
                 // Chiudi tutte le etichette attive
                 if (imageLabels.getActiveLabels().length > 0) {
                     console.log("Click out - chiusura di tutte le etichette");
-                    
+                    zoomOut(camera);
                     // Rimuovi ogni etichetta con l'animazione di zoom out
                     imageLabels.getActiveLabels().forEach((label) => {
                         imageLabels.removeLabelForPoint(label.point);
@@ -276,6 +360,20 @@ async function init() {
             camera.updateProjectionMatrix();
             renderer.setSize(newWidth, newHeight);
         });
+
+        document.addEventListener('keydown', (event) => {
+            if (event.key === 'Escape') {
+                // Torna alla vista originale
+                
+                
+                // Opzionalmente, chiudi anche tutte le etichette
+                if (imageLabels.getActiveLabels().length > 0) {
+                    imageLabels.getActiveLabels().forEach((label) => {
+                        imageLabels.removeLabelForPoint(label.point);
+                    });
+                }
+        }
+});
 
     } catch (error) {
         console.error("Errore durante il caricamento dei punti:", error);
