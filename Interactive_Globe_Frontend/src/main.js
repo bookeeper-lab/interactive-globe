@@ -11,6 +11,86 @@ import { createImageLabels } from './createImageLabels.js';
 import gsap from 'gsap';
 
 
+function toggleHTMLElements(hide = true) {
+    const elementsToHide = [
+        '.search-comune-container', 
+        '.helper',
+        '.zoom-controls'
+    ];
+    
+    elementsToHide.forEach(selector => {
+        const element = document.querySelector(selector);
+        if (element) {
+            if (hide) {
+                // Nasconde con animazione fade-out
+                gsap.to(element, {
+                    opacity: 0,
+                    duration: 0.3,
+                    ease: "power2.out",
+                    onComplete: () => {
+                        element.style.pointerEvents = 'none'; // Disabilita anche l'interazione
+                    }
+                });
+            } else {
+                // Mostra con animazione fade-in
+                element.style.pointerEvents = 'auto'; // Riabilita l'interazione
+                gsap.to(element, {
+                    opacity: 1,
+                    duration: 0.3,
+                    ease: "power2.out",
+                    delay: 0.8
+                });
+            }
+        }
+    });
+}
+
+function toggleMapElements(show, numeroMappe = 0) {
+    const elementsToToggle = [
+        '.mappe-info',
+        '.close-map', 
+        '.mappe-name',
+        '.esplora'
+    ];
+    
+    if (show) {
+        // Aggiorna il numero di mappe
+        const numeroMappeSpan = document.getElementById('numero-mappe');
+        if (numeroMappeSpan) {
+            numeroMappeSpan.textContent = numeroMappe;
+        }
+        
+        // Mostra elementi con animazione fade-in
+        elementsToToggle.forEach(selector => {
+            const element = document.querySelector(selector);
+            if (element) {
+                element.style.pointerEvents = 'auto';
+                gsap.to(element, {
+                    opacity: 1,
+                    duration: 0.3,
+                    ease: "power2.out",
+                    delay: 0.8
+                });
+            }
+        });
+        
+    } else {
+        // Nasconde elementi con animazione fade-out
+        elementsToToggle.forEach(selector => {
+            const element = document.querySelector(selector);
+            if (element) {
+                gsap.to(element, {
+                    opacity: 0,
+                    duration: 0.3,
+                    ease: "power2.out",
+                    onComplete: () => {
+                        element.style.pointerEvents = 'none';
+                    }
+                });
+            }
+        });
+    }
+}
 
 // Funzione principale asincrona
 async function init() {
@@ -225,11 +305,14 @@ async function init() {
                     // Disattiva la rotazione automatica
                     autoRotateController.disable();
                     
+                    
                     // Se non ha già un'etichetta, crea una nuova etichetta
                     if (!imageLabels.hasLabel(clickedPoint)) {
                         // Crea una nuova etichetta passando la scena e la camera
                         imageLabels.createLabelForPoint(clickedPoint, group, scene, camera);
                         
+                        toggleHTMLElements(true);
+                        toggleMapElements(true, 10);
                         // Ruota il globo verso il punto
                         rotateGlobeToPoint(group, clickedPoint, camera, () => {
                             console.log("Rotazione completata");
@@ -314,6 +397,8 @@ async function init() {
                 // Chiudi tutte le etichette attive
                 if (imageLabels.getActiveLabels().length > 0) {
                     console.log("Click out - chiusura di tutte le etichette");
+                    toggleHTMLElements(false);
+                    toggleMapElements(false, 10);
                     zoomOut(camera);
                     // Rimuovi ogni etichetta con l'animazione di zoom out
                     imageLabels.getActiveLabels().forEach((label) => {
@@ -327,10 +412,12 @@ async function init() {
         window.addEventListener('pointermove', handlePointerMove);
         
         // Carica la texture di sfondo
-        const loader = new THREE.TextureLoader();
+        /* const loader = new THREE.TextureLoader();
         loader.load('../assets/texture/backgroundGlobe.jpg', function(texture) {
             scene.background = texture;
-        });
+        }); */
+
+        scene.background = new THREE.Color(0xE4E0C1); // Imposta uno sfondo nero
 
         // Loop di animazione
         function animate() {
@@ -363,17 +450,16 @@ async function init() {
 
         document.addEventListener('keydown', (event) => {
             if (event.key === 'Escape') {
-                // Torna alla vista originale
-                
-                
-                // Opzionalmente, chiudi anche tutte le etichette
                 if (imageLabels.getActiveLabels().length > 0) {
+                    // MOSTRA GLI ELEMENTI HTML ANCHE CON ESCAPE
+                    toggleHTMLElements(false);
+                    
                     imageLabels.getActiveLabels().forEach((label) => {
                         imageLabels.removeLabelForPoint(label.point);
                     });
                 }
-        }
-});
+            }
+        });
 
     } catch (error) {
         console.error("Errore durante il caricamento dei punti:", error);
