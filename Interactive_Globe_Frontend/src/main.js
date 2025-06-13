@@ -7,7 +7,6 @@ import fragmentShader from './shader/fragment.glsl';
 import atmosferaVertex from './shader/atmosferaVertex.glsl';
 import atmosferaFragment from './shader/atmosferaFragment.glsl';
 import { createImageLabels } from './createImageLabels.js';
-//import { MapsUI } from './mapsUI.js';
 import gsap from 'gsap';
 
 

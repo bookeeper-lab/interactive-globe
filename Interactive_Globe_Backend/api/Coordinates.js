@@ -6,9 +6,9 @@ const Maps = require('../model/Maps');
 // Aggiorna le coordinate di una mappa (creando nuove coordinate)
 router.put('/maps/:id/set-coordinates', async (req, res) => {
   const { id } = req.params;
-  const { latitude, longitude } = req.body;
+  const { place_name, latitude, longitude } = req.body;
   
-  if (latitude === undefined || longitude === undefined) {
+  if (place_name === undefined ||latitude === undefined || longitude === undefined) {
     return res.status(400).json({ error: 'I parametri latitude e longitude sono richiesti' });
   }
 
@@ -21,6 +21,7 @@ router.put('/maps/:id/set-coordinates', async (req, res) => {
     
     // Crea nuove coordinate
     const newCoordinates = await Coordinates.create({
+      place_name,
       latitude,
       longitude
     });

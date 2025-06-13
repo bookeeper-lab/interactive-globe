@@ -7,6 +7,10 @@ const Coordinates = sequelize.define('Coordinates', {
         primaryKey: true,
         autoIncrement: true
     },
+    place_name:{
+        type: DataTypes.STRING,
+        allowNull: false
+    },
     latitude: {
         type: DataTypes.FLOAT,
         allowNull: false

@@ -1,7 +1,7 @@
 export class MapsService {
    constructor() {
 
-        this.baseUrl = import.meta.env.VITE_BACKEND_PORT || 'http://localhost:3000';
+        this.baseUrl = import.meta.env.VITE_BACKEND_URL || 'http://localhost:3000';
         console.log("MapsService inizializzato con baseUrl:", this.baseUrl);
     }
 

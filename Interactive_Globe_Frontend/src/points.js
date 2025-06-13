@@ -124,7 +124,7 @@ export async function createPoints(group) {
     try {
         const municipalityId = localStorage.getItem('selectedMunicipalityId') || 1;
         
-        const apiUrl = `${import.meta.env.VITE_BACKEND_PORT}/api/maps/${municipalityId}`;
+        const apiUrl = `${import.meta.env.VITE_BACKEND_URL}/api/maps/${municipalityId}`;
         //console.log('Fetching maps from:', apiUrl);
         
         const response = await fetch(apiUrl);
@@ -151,7 +151,7 @@ export async function createPoints(group) {
             console.log(`Creating point for map: ${map.title} at lat:${lat}, lng:${lng}`);
             
             // Importante: costruisco qui l'URL corretto per l'immagine utilizzando l'endpoint API
-            const imageUrl = `${import.meta.env.VITE_BACKEND_PORT}/api/maps/${map.id}/image`;
+            const imageUrl = `${import.meta.env.VITE_BACKEND_URL}/api/maps/${map.id}/image`;
             
             return new Point(
                 lat, 

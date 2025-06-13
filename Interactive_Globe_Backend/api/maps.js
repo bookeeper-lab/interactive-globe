@@ -4,6 +4,8 @@ const Maps  = require('../model/Maps');
 const Coordinates = require('../model/Coordinates');
 const path = require('path');
 const D_Libraries = require('../model/Digital_Libraries');
+const { Op } = require('sequelize');
+const Digital_Libraries = require('../model/Digital_Libraries');
 
 /* router.get('/maps/:m_id', async (req, res) => {
   try {
@@ -155,6 +157,47 @@ router.get('/maps/:id/image', async (req, res) => {
     console.error(error);
     res.status(500).send('Errore interno');
   }
+});
+
+router.get('/search', async (req, res) => {
+    try {
+        const { q } = req.query; // query di ricerca
+        
+        console.log('Ricerca per:', q); // Debug log
+        
+        if (!q || q.length < 2) {
+            return res.json([]);
+        }
+
+        const results = await Maps.findAll({
+            where: {
+                [Op.or]: [
+                    { title: { [Op.like]: `%${q}%` } },      // Usa Op.like invece di Op.iLike
+                    { location: { [Op.like]: `%${q}%` } },   // Usa Op.like invece di Op.iLike
+                    { creator: { [Op.like]: `%${q}%` } }     // Usa Op.like invece di Op.iLike
+                ]
+            },
+            include: [
+                {
+                    model: Digital_Libraries,
+                    as: 'Digital_Library',
+                    attributes: ['name']
+                },
+                {
+                    model: Coordinates,
+                    attributes: ['place_name', 'latitude', 'longitude']
+                }
+            ],
+            limit: 10,
+            order: [['title', 'ASC']]
+        });
+
+        console.log('Risultati trovati:', results.length); // Debug log
+        res.json(results);
+    } catch (error) {
+        console.error('Errore nella ricerca:', error);
+        res.status(500).json({ error: 'Errore del server' });
+    }
 });
 
 

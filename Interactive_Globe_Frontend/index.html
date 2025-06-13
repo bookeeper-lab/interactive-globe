@@ -35,11 +35,15 @@
 		<div class="main-content">
 			<div class="search-comune-container">
 				<div class="comune-nome">Comune di <span>Pesaro</span></div>
-				<div class="input-group search-box">
-					<input type="text" class="form-control custom-input" placeholder="Cerca un luogo" aria-label="Cerca un luogo">
-					<span class="input-group-text search-icon">
+				<div class="search-box">
+					<input type="text" id="search-input" class="custom-input" placeholder="Cerca un luogo..." aria-label="Cerca un luogo">
+					<div class="search-icon">
 						<i class="bi bi-search"></i>
-					</span>
+					</div>
+					<!-- Dropdown dei risultati -->
+					<div id="search-dropdown" class="search-dropdown">
+						<div id="search-results"></div>
+					</div>
 				</div>
 			</div>
 
@@ -94,5 +98,6 @@
 				});
 			});
 		</script>
+		<script type="module" src="./src/search.js"></script>
 	</body>
 </html>
