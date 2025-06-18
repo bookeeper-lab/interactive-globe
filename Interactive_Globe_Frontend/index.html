@@ -73,7 +73,7 @@
 				</div>
 			</div>
 
-			<button type="button" class="close-map" id="close-map">×</button>
+			<button type="button" class="close-map" id="close-map"><i class="bi bi-x-lg"></i></button>
 
 			<div class="mappe-name" id="mappe-info">
 				Nome posto
@@ -89,7 +89,7 @@
 		</div>
 	
 		<script type="module" src="src/main.js"></script>
-		<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/js/bootstrap.bundle.min.js" integrity="sha384-/bQdsTh/1piHFISQ7uoZk0h1zFfZLr5BLYN03G+LLP8kk6RxyJDh1JgfQR8F0sjx" crossorigin="anonymous"></script>
+		
 		<script>
 			document.addEventListener("DOMContentLoaded", function () {
 				const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
@@ -98,6 +98,6 @@
 				});
 			});
 		</script>
-		<script type="module" src="./src/search.js"></script>
+		<script type="module" src="./src/services/search.js"></script>
 	</body>
 </html>

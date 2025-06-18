@@ -1,7 +1,15 @@
 import * as THREE from 'three';
 import gsap from 'gsap';
 
-export class Point {
+export class Marker {
+    /**
+     * Crea un marker 3D che rappresenta un punto geografico.
+     * @param {number} lat - Latitudine del marker.
+     * @param {number} lng - Longitudine del marker.
+     * @param {string} name - Nome del marker.
+     * @param {string} description - Descrizione del marker.
+     * @param {string} image - URL dell'immagine associata al marker.
+     */
     constructor(lat, lng, name, description, image) {
         this.lat = lat;
         this.lng = lng;
@@ -17,7 +25,7 @@ export class Point {
         
         const markerColor = 0x8b1f0c;
         
-        // Materiale principale con effetto metallico dorato
+        // Materiale principale con effetto metallico
         const material = new THREE.MeshPhongMaterial({ 
             color: markerColor,
             transparent: true,
@@ -32,7 +40,6 @@ export class Point {
         const scaleFactor = 0.6;
         
         // Creiamo la goccia combinando una sfera e un cono
-        
         // 1. La sfera ridimensionata nella parte superiore del marker
         const sphereGeometry = new THREE.SphereGeometry(0.2 * scaleFactor, 20, 20);
         const sphere = new THREE.Mesh(sphereGeometry, material);
@@ -58,8 +65,7 @@ export class Point {
         group.position.z = (radius * Math.sin(phi) * Math.sin(theta));
         group.position.y = (radius * Math.cos(phi));
     
-        // Calcola la distanza corretta per far "galleggiare" il marker
-        // Anche la distanza va ridotta proporzionalmente
+        // Calcola la distanza corretta per posizionare il marker sopra il globo
         const floatDistance = 0.18 * scaleFactor; 
         const direction = new THREE.Vector3().copy(group.position).normalize();
         group.position.add(direction.multiplyScalar(floatDistance));
@@ -119,7 +125,6 @@ export class Point {
     
 }
 
-    // Modifica in points.js nella funzione createPoints
 export async function createPoints(group) {
     try {
         const municipalityId = localStorage.getItem('selectedMunicipalityId') || 1;
@@ -153,7 +158,7 @@ export async function createPoints(group) {
             // Importante: costruisco qui l'URL corretto per l'immagine utilizzando l'endpoint API
             const imageUrl = `${import.meta.env.VITE_BACKEND_URL}/api/maps/${map.id}/image`;
             
-            return new Point(
+            return new Marker(
                 lat, 
                 lng, 
                 map.title, 
@@ -215,7 +220,7 @@ export function createStaticPoints(group) {
         }
     ];
 
-    const points = pointsData.map(data => new Point(
+    const points = pointsData.map(data => new Marker(
         data.lat, 
         data.lng, 
         data.name, 

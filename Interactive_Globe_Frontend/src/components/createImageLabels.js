@@ -1,4 +1,3 @@
-// File createImageLabels.js corretto
 
 import * as THREE from 'three';
 import gsap from 'gsap';

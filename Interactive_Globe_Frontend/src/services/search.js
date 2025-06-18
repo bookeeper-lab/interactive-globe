@@ -1,4 +1,3 @@
-// search.js
 class SearchManager {
     
     constructor() {

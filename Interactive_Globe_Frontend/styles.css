@@ -565,7 +565,7 @@ canvas {
   width: 9rem;
   height: 2.5rem;
   border: 2px solid #D4AF37;
-  border-radius: 12px;
+  border-radius: 10px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
   transition: all 0.3s ease;
   cursor: pointer;
@@ -628,6 +628,7 @@ canvas {
   pointer-events: none; /* Inizia disabilitato */
   backdrop-filter: blur(5px);
   opacity: 0;
+  transition: all 0.2s ease-in-out;
 }
 
 .close-map:hover {
