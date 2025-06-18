@@ -142,17 +142,23 @@ export class InteractionManager {
         return dotProduct > 0 && intersections.length === 0;
     }
 
-    handlePointClick(intersection) {
+    async handlePointClick(intersection) {
         const clickedPoint = intersection.object.userData.parentPoint;
         console.log("Punto cliccato:", clickedPoint.name);
-        
+
+        this.updatePlaceName(clickedPoint.name);
         this.autoRotateController.disable();
+
+        if (clickedPoint.coord_id) {
+            console.log("aspettando il conteggio")
+            await this.updateMapCountForPoint(clickedPoint.coord_id);
+        }
         
         if (!this.imageLabels.hasLabel(clickedPoint)) {
             this.imageLabels.createLabelForPoint(clickedPoint, this.group, this.scene, this.camera);
             
             this.uiManager.hideHTMLElements();
-            this.uiManager.showMapElements(10);
+            this.uiManager.showMapElements();
             
             rotateGlobeToPoint(this.group, clickedPoint, this.camera, () => {
                 console.log("Rotazione completata");
@@ -161,6 +167,50 @@ export class InteractionManager {
             this.cameraManager.zoomToPoint(clickedPoint, this.scene, this.imageLabels);
         }
     }
+
+    updatePlaceName(placeName) {
+        const mappeElement = document.querySelector('.mappe-name');
+        if(mappeElement) {
+            mappeElement.textContent = placeName;
+        }
+    }
+
+    async updateMapCountForPoint(coordId) {
+        console.log("contando le mappe")
+        try {
+            const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/coordinates/${coordId}/maps/count`);
+            //console.log("risposta ricevuta", response);
+            
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            
+            const data = await response.json();
+            this.updateMapCount(data.count);
+
+            
+            // Salva l'ID coordinata per uso futuro (per il pulsante Esplora)
+            this.currentCoordId = coordId;
+            
+        } catch (error) {
+            console.error('Errore nel recupero del numero di mappe:', error);
+            this.updateMapCount(0); // Fallback
+        }
+    }
+
+    updateMapCount(count) {
+        console.log("Aggiornamento numero mappe:", count);
+        setTimeout(() => {
+            const numeroMappeElement = document.getElementById('numero-mappe');
+            if (numeroMappeElement) {
+                numeroMappeElement.textContent = count;
+                console.log("Aggiornamento riuscito");
+            } else {
+                console.warn("Elemento #numero-mappe non trovato nel timeout");
+            }
+        }, 500); // ritardo di mezzo secondo
+    }
+
 
     handleLabelClick(intersection) {
         const clickedLabel = intersection.object;

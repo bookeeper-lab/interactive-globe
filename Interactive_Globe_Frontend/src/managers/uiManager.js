@@ -82,7 +82,50 @@ export class UIManager {
                 }
             });
         }
-    }
+    } 
+
+    /* toggleMapElements(show, numeroMappe = 0, onReady = null) {
+        if (show) {
+            const numeroMappeSpan = document.getElementById('numero-mappe');
+            if (numeroMappeSpan) {
+                numeroMappeSpan.textContent = numeroMappe;
+            }
+
+            this.mapElements.forEach((selector, index) => {
+                const element = document.querySelector(selector);
+                if (element) {
+                    element.style.pointerEvents = 'auto';
+                    gsap.to(element, {
+                        opacity: 1,
+                        duration: 0.3,
+                        ease: "power2.out",
+                        delay: 0.8,
+                        // chiama la callback solo sull'ultimo elemento
+                        onComplete: () => {
+                            if (onReady && index === this.mapElements.length - 1) {
+                                onReady();
+                            }
+                        }
+                    });
+                }
+            });
+        } else {
+            this.mapElements.forEach(selector => {
+                const element = document.querySelector(selector);
+                if (element) {
+                    gsap.to(element, {
+                        opacity: 0,
+                        duration: 0.3,
+                        ease: "power2.out",
+                        onComplete: () => {
+                            element.style.pointerEvents = 'none';
+                        }
+                    });
+                }
+            });
+        }
+    } */
+
 
     showHTMLElements() {
         this.toggleHTMLElements(false);
@@ -92,8 +135,8 @@ export class UIManager {
         this.toggleHTMLElements(true);
     }
 
-    showMapElements(numeroMappe = 0) {
-        this.toggleMapElements(true, numeroMappe);
+    showMapElements() {
+        this.toggleMapElements(true);
     }
 
     hideMapElements() {

@@ -2,6 +2,8 @@ const express = require('express');
 const router = express.Router();
 const Coordinates = require('../model/Coordinates');
 const Maps = require('../model/Maps');
+const Digital_Libraries = require('../model/Digital_Libraries');
+const URL = process.env.URL;
 
 // Aggiorna le coordinate di una mappa (creando nuove coordinate)
 router.put('/maps/:id/set-coordinates', async (req, res) => {
@@ -97,6 +99,114 @@ router.get('/maps/:id/coordinates', async (req, res) => {
     res.json(map.Coordinate);
   } catch (error) {
     console.error('Errore durante il recupero delle coordinate:', error);
+    res.status(500).json({ error: 'Errore interno del server' });
+  }
+});
+
+
+
+// Route per ottenere il numero di mappe per una coordinata specifica
+router.get('/coordinates/:coord_id/maps/count', async (req, res) => {
+  try {
+    const { coord_id } = req.params;
+    
+    const count = await Maps.count({
+      where: {
+        coord_id: coord_id
+      }
+    });
+    
+    res.json({ count });
+  } catch (error) {
+    console.error('Errore nel conteggio delle mappe:', error);
+    res.status(500).json({ error: 'Errore interno del server' });
+  }
+});
+
+// Route per ottenere tutte le mappe di una coordinata specifica
+router.get('/coordinates/:coord_id/maps', async (req, res) => {
+  try {
+    const { coord_id } = req.params;
+    
+    const maps = await Maps.findAll({
+      where: {
+        coord_id: coord_id
+      },
+      include: [
+        {
+          model: Digital_Libraries,
+          as: 'Digital_Library',
+          attributes: ['name']
+        },
+        {
+          model: Coordinates,
+          attributes: ['place_name', 'latitude', 'longitude']
+        }
+      ],
+      order: [['title', 'ASC']]
+    });
+    
+    if (maps.length === 0) {
+      return res.status(404).json({ error: 'Nessuna mappa trovata per questa coordinata' });
+    }
+    
+    // Trasforma i risultati includendo l'URL dell'immagine
+    const transformedMaps = maps.map(map => {
+      const mapData = map.toJSON();
+      
+      return {
+        id: mapData.id,
+        title: mapData.title,
+        location: mapData.location,
+        historical_period: mapData.historical_period,
+        creator: mapData.creator,
+        type: mapData.type,
+        file_name: mapData.file_name,
+        Digital_Library: mapData.Digital_Library,
+        Coordinate: mapData.Coordinate,
+        image_url: mapData.Digital_Library ? 
+          `${URL}/api/maps/${mapData.id}/image` : null
+      };
+    });
+    
+    res.json({
+      coordinate_id: coord_id,
+      total_maps: maps.length,
+      maps: transformedMaps
+    });
+    
+  } catch (error) {
+    console.error('Errore nel recupero delle mappe per coordinata:', error);
+    res.status(500).json({ error: 'Errore interno del server' });
+  }
+});
+
+// Route per ottenere informazioni complete su una coordinata (incluso il numero di mappe)
+router.get('/coordinates/:coord_id/info', async (req, res) => {
+  try {
+    const { coord_id } = req.params;
+    
+    // Ottieni le informazioni della coordinata
+    const coordinate = await Coordinates.findByPk(coord_id);
+    
+    if (!coordinate) {
+      return res.status(404).json({ error: 'Coordinata non trovata' });
+    }
+    
+    // Conta le mappe associate
+    const mapCount = await Maps.count({
+      where: {
+        coord_id: coord_id
+      }
+    });
+    
+    res.json({
+      coordinate: coordinate,
+      map_count: mapCount
+    });
+    
+  } catch (error) {
+    console.error('Errore nel recupero info coordinata:', error);
     res.status(500).json({ error: 'Errore interno del server' });
   }
 });

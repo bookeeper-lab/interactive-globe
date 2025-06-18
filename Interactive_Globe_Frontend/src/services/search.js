@@ -82,19 +82,84 @@ class SearchManager {
             return;
         }
 
-        const resultsHtml = results.map(result => `
-            <div class="search-result-item" data-map-id="${result.id}" data-coords="${result.Coordinate ? result.Coordinate.latitude + ',' + result.Coordinate.longitude : ''}">
-                <div class="search-result-title">${result.title}</div>
-                <div class="search-result-details">
-                    ${result.location ? result.location + ' • ' : ''}
-                    ${result.creator ? 'di ' + result.creator + ' • ' : ''}
-                    ${result.Digital_Library ? result.Digital_Library.name : ''}
-                </div>
-            </div>
-        `).join('');
-
+        const resultsHtml = results.map(result => this.createResultItem(result)).join('');
         this.searchResults.innerHTML = resultsHtml;
         this.attachResultListeners();
+    }
+
+    createResultItem(result) {
+        // Gestisci i campi che potrebbero non esistere
+        const thumbnail = this.getThumbnailHTML(result);
+        const località = result.location || 'Non specificata';
+        const periodo = result.historical_period || result.period || result.year || 'Non specificato';
+        const autore = result.creator || 'Autore sconosciuto';
+        const biblioteca = result.Digital_Library ? result.Digital_Library.name : '';
+        const titolo = result.title || 'Mappa senza titolo';
+
+        return `
+            <div class="search-result-item" data-map-id="${result.id}" data-coords="${result.Coordinate ? result.Coordinate.latitude + ',' + result.Coordinate.longitude : ''}">
+                ${thumbnail}
+                
+                <div class="search-result-content">
+                    <div class="search-result-title">${this.escapeHTML(titolo)}</div>
+                    
+                    <div class="search-result-details">
+                        <div class="search-result-field">
+                            <i class="bi bi-geo-alt search-result-icon"></i>
+                            <span class="search-result-label">Località:</span>
+                            <span class="search-result-value">${this.escapeHTML(località)}</span>
+                        </div>
+                        
+                        <div class="search-result-field">
+                            <i class="bi bi-clock-history search-result-icon"></i>
+                            <span class="search-result-label">Periodo:</span>
+                            <span class="search-result-value">${this.escapeHTML(periodo)}</span>
+                        </div>
+                        
+                        <div class="search-result-field">
+                            <i class="bi bi-person search-result-icon"></i>
+                            <span class="search-result-label">Autore:</span>
+                            <span class="search-result-value">${this.escapeHTML(autore)}</span>
+                        </div>
+                        
+                        ${biblioteca ? `
+                        <div class="search-result-field">
+                            <i class="bi bi-building search-result-icon"></i>
+                            <span class="search-result-label">Biblioteca:</span>
+                            <span class="search-result-value">${this.escapeHTML(biblioteca)}</span>
+                        </div>
+                        ` : ''}
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+
+    getThumbnailHTML(result) {
+        // Controlla se esiste una miniatura nel risultato
+        // Adatta questi nomi di campo in base a quello che restituisce il tuo backend
+        const thumbnailUrl = result.thumbnail || 
+                             result.thumbnail_url || 
+                             result.preview_image || 
+                             result.image_url ||
+                             (result.Digital_Library && result.Digital_Library.thumbnail);
+
+        if (thumbnailUrl) {
+            return `
+                <div class="search-result-thumbnail">
+                    <img src="${thumbnailUrl}" alt="Miniatura mappa" onerror="this.parentElement.innerHTML='<div class=\\'search-result-thumbnail-placeholder\\'><i class=\\'bi bi-map\\'></i></div>'">
+                </div>
+            `;
+        } else {
+            // Placeholder se non c'è miniatura
+            return `
+                <div class="search-result-thumbnail">
+                    <div class="search-result-thumbnail-placeholder">
+                        <i class="bi bi-map"></i>
+                    </div>
+                </div>
+            `;
+        }
     }
 
     attachResultListeners() {
@@ -103,21 +168,13 @@ class SearchManager {
         });
     }
 
+    //QUI gestisci il click su un risultato
     handleResultClick(item) {
         const mapId = item.dataset.mapId;
         const coords = item.dataset.coords;
         const title = item.querySelector('.search-result-title').textContent;
         
-        this.searchInput.value = title;
-        this.hideDropdown();
-        
-        if (coords) {
-            const [lat, lng] = coords.split(',').map(Number);
-            this.centerGlobeOnLocation(lat, lng);
-        }
-        
-        // Aggiorna info mappa
-        document.getElementById('mappe-info').textContent = title;
+        //TODO: implementare la logica per centrare il globo sulla posizione
     }
 
     centerGlobeOnLocation(lat, lng) {
@@ -144,6 +201,12 @@ class SearchManager {
         this.hideTimeout = setTimeout(() => {
             this.searchDropdown.classList.remove('hiding');
         }, 200); // Stesso tempo della transizione CSS (0.2s)
+    }
+
+    escapeHTML(text) {
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
     }
 }
 

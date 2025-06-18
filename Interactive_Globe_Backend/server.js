@@ -1,12 +1,13 @@
 // app.js o server.js
+require('dotenv').config();
 const express = require('express');
 const dbConnection = require('./config/db_connection');
 const cors = require('cors');
-require('dotenv').config();
 
-const mapsRoutes = require('./api/maps');
-const digitalLibrariesRoutes = require('./api/DigitalLibrary');
-const coordinatesRoutes = require('./api/Coordinates');
+
+const mapsRoutes = require('./api/mapsAPI');
+const digitalLibrariesRoutes = require('./api/DigitalLibraryAPI');
+const coordinatesRoutes = require('./api/CoordinatesAPI');
 const syncMapsDirectory = require('./service/mapsSync');
 
 const app = express();

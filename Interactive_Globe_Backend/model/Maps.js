@@ -25,6 +25,10 @@ const Maps = sequelize.define('maps', {
         },
         allowNull: false,
      },
+     historical_period: {
+        type: DataTypes.INTEGER,
+        allowNull: true
+     },
     creator: {
         type: DataTypes.STRING,
         allowNull: true

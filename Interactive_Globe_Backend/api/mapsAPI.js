@@ -6,6 +6,7 @@ const path = require('path');
 const D_Libraries = require('../model/Digital_Libraries');
 const { Op } = require('sequelize');
 const Digital_Libraries = require('../model/Digital_Libraries');
+const URL = process.env.URL ;
 
 /* router.get('/maps/:m_id', async (req, res) => {
   try {
@@ -119,6 +120,7 @@ router.get('/maps/:m_id/maps/images', async (req, res) => {
         mapId: map.id,
         title: map.title,
         fileName: map.file_name,
+        
         // Usa un percorso che corrisponda a come hai configurato il middleware express.static
         url: `/maps_static/${library.name}/${map.file_name || 'image.jpg'}`,
       };
@@ -133,33 +135,7 @@ router.get('/maps/:m_id/maps/images', async (req, res) => {
 });
 
 
-router.get('/maps/:id/image', async (req, res) => {
-  try {
-    const mapId = req.params.id;
-
-    const map = await Maps.findByPk(mapId, {
-      include: [{ model: D_Libraries, as: 'Digital_Library' }]
-    });
-    if (!map) {
-      return res.status(404).send('Mappa non trovata');
-    }
-
-    const municipalityFolder = map.Digital_Library.name;
-    const imagePath =  path.join(process.env.MAPS_DIR, municipalityFolder, map.file_name);
-
-    // Controlla che il file esista
-    if (!fs.existsSync(imagePath)) {
-      return res.status(404).send('File immagine non trovato');
-    }
-
-    res.sendFile(imagePath);
-  } catch (error) {
-    console.error(error);
-    res.status(500).send('Errore interno');
-  }
-});
-
-router.get('/search', async (req, res) => {
+/* router.get('/search', async (req, res) => {
     try {
         const { q } = req.query; // query di ricerca
         
@@ -198,7 +174,97 @@ router.get('/search', async (req, res) => {
         console.error('Errore nella ricerca:', error);
         res.status(500).json({ error: 'Errore del server' });
     }
+}); */
+
+router.get('/search', async (req, res) => {
+    try {
+        const { q } = req.query; // query di ricerca
+        
+        console.log('Ricerca per:', q); // Debug log
+        
+        if (!q || q.length < 2) {
+            return res.json([]);
+        }
+
+        const results = await Maps.findAll({
+            where: {
+                [Op.or]: [
+                    { title: { [Op.like]: `%${q}%` } },
+                    { location: { [Op.like]: `%${q}%` } },
+                    { creator: { [Op.like]: `%${q}%` } }
+                ]
+            },
+            include: [
+                {
+                    model: Digital_Libraries,
+                    as: 'Digital_Library',
+                    attributes: ['name']
+                },
+                {
+                    model: Coordinates,
+                    attributes: ['place_name', 'latitude', 'longitude']
+                }
+            ],
+            limit: 10,
+            order: [['title', 'ASC']]
+        });
+
+        console.log('Risultati trovati:', results.length); // Debug log
+        
+        // Trasforma i risultati per adattarli al frontend
+        const transformedResults = results.map(map => {
+            const mapData = map.toJSON();
+            
+            return {
+                id: mapData.id,
+                title: mapData.title,
+                location: mapData.location,
+                historical_period: mapData.historical_period || mapData.period || mapData.year,
+                period: mapData.period,
+                creator: mapData.creator,
+                Digital_Library: mapData.Digital_Library,
+                image_url: mapData.Digital_Library ? 
+                    `${URL}/api/maps/${mapData.id}/image` : null
+            };
+        });
+
+        res.json(transformedResults);
+    } catch (error) {
+        console.error('Errore nella ricerca:', error);
+        res.status(500).json({ error: 'Errore del server' });
+    }
 });
+
+router.put('/map/information/:id', async (req, res) => {
+  const { id } = req.params;
+  const { historical_period, creator, type, location } = req.body;
+
+  try {
+    // Verifica che la mappa esista
+    const map = await Maps.findByPk(id);
+    if (!map) {
+      return res.status(404).json({ error: 'Mappa non trovata' });
+    }
+
+    // Aggiorna le informazioni della mappa
+    await map.update({
+      historical_period,
+      creator,
+      type,
+      location
+    });
+
+    res.json({
+      success: true,
+      message: 'Informazioni della mappa aggiornate con successo',
+      map
+    });
+  } catch (error) {
+    console.error('Errore durante l\'aggiornamento delle informazioni della mappa:', error);
+    res.status(500).json({ error: 'Errore interno del server' });
+  }
+});
+
 
 
 

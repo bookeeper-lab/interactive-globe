@@ -95,13 +95,13 @@ export class CameraManager {
                 duration: 1.5,
                 ease: "power2.inOut",
                 onStart: () => {
-                    console.log("Animazione zoom iniziata");
+                    //console.log("Animazione zoom iniziata");
                 },
                 onUpdate: () => {
-                    console.log("Posizione camera durante animazione:", this.camera.position);
+                    //console.log("Posizione camera durante animazione:", this.camera.position);
                 },
                 onComplete: () => {
-                    console.log("Zoom simultaneo completato");
+                    //console.log("Zoom simultaneo completato");
                 }
             });
         }, 100);

@@ -10,12 +10,13 @@ export class Marker {
      * @param {string} description - Descrizione del marker.
      * @param {string} image - URL dell'immagine associata al marker.
      */
-    constructor(lat, lng, name, description, image) {
+    constructor(lat, lng, name, description, coord_id, image) {
         this.lat = lat;
         this.lng = lng;
         this.name = name;
         this.description = description;
         this.image = image;
+        this.coord_id = coord_id;
         this.mesh = this.createMesh();
         this.createBlinkingEffect(); 
     }
@@ -128,56 +129,70 @@ export class Marker {
 export async function createPoints(group) {
     try {
         const municipalityId = localStorage.getItem('selectedMunicipalityId') || 1;
-        
         const apiUrl = `${import.meta.env.VITE_BACKEND_URL}/api/maps/${municipalityId}`;
-        //console.log('Fetching maps from:', apiUrl);
-        
+
         const response = await fetch(apiUrl);
-        
         if (!response.ok) {
             throw new Error(`Error fetching maps: ${response.status} ${response.statusText}`);
         }
-        
+
         const mapData = await response.json();
         console.log('Map data received:', mapData);
+
+        // Filtro solo le mappe che hanno coordinate
+        const mapsWithCoordinates = mapData.filter(map => map.coord_id !== null);
         
-        const mapsWithCoordinates = mapData.filter(map => map.Coordinate !== null);
-        
+
         if (mapsWithCoordinates.length === 0) {
             console.warn('No maps with coordinates found, falling back to static points');
             return createStaticPoints(group);
         }
-        
-        // Trasforma i dati in punti
-        const points = mapsWithCoordinates.map(map => {
-            const lat = map.Coordinate ? map.Coordinate.latitude : 0;
-            const lng = map.Coordinate ? map.Coordinate.longitude : 0;
-            
-            console.log(`Creating point for map: ${map.title} at lat:${lat}, lng:${lng}`);
-            
-            // Importante: costruisco qui l'URL corretto per l'immagine utilizzando l'endpoint API
-            const imageUrl = `${import.meta.env.VITE_BACKEND_URL}/api/maps/${map.id}/image`;
-            
-            return new Marker(
-                lat, 
-                lng, 
-                map.title, 
-                map.location || 'Nessuna descrizione disponibile',
-                imageUrl  //uso l'url creato dinamicamente 
+
+        //Raggruppa le mappe per coord_id
+        const groupedByCoordId = {};
+        for (const map of mapsWithCoordinates) {
+            const coordId = map.coord_id;
+            if (!groupedByCoordId[coordId]) {
+                groupedByCoordId[coordId] = [];
+            }
+            groupedByCoordId[coordId].push(map);
+        }
+
+        const points = [];
+
+        // Crea un Marker per ogni gruppo (una sola mappa per coord_id)
+        for (const coordId in groupedByCoordId) {
+            const maps = groupedByCoordId[coordId];
+            const representativeMap = maps.reverse()[0];; // puoi usare altri criteri se vuoi (es. la più recente ecc.)
+
+            const lat = representativeMap.Coordinate.latitude;
+            const lng = representativeMap.Coordinate.longitude;
+
+            console.log(`Creating point for coord_id ${coordId}, map: ${representativeMap.title} at lat:${lat}, lng:${lng}`);
+
+            const imageUrl = `${import.meta.env.VITE_BACKEND_URL}/api/maps/${representativeMap.id}/image`;
+
+            const point = new Marker(
+                lat,
+                lng,
+                representativeMap.title,
+                representativeMap.location || 'Nessuna descrizione disponibile',
+                coordId,
+                imageUrl
             );
-        });
-        
-        // Aggiungi i punti al gruppo
-        points.forEach(point => group.add(point.mesh));
-        
+
+            points.push(point);
+            group.add(point.mesh);
+        }
+
         return points;
-        
+
     } catch (error) {
         console.error('Error loading points:', error);
-        // Se c'è un errore, torna ai punti statici
         return createStaticPoints(group);
     }
 }
+
     
 
 export function createStaticPoints(group) {
