@@ -38,7 +38,7 @@ export class Marker {
         });
         
         // Fattore di riduzione della dimensione (0.6 = 60% della dimensione originale)
-        const scaleFactor = 0.6;
+        const scaleFactor = 0.4;
         
         // Creiamo la goccia combinando una sfera e un cono
         // 1. La sfera ridimensionata nella parte superiore del marker
@@ -88,7 +88,7 @@ export class Marker {
         // Colore originale del marker
         const originalColor = new THREE.Color(0xa6251c);
         // Colore leggermente più luminoso per l'effetto di illuminazione
-        const brightColor = new THREE.Color(0xe83a2d);
+        const brightColor = new THREE.Color(0xff573e);
         
         // Salva riferimenti ai materiali
         const materials = [sphere.material, cone.material];
@@ -109,7 +109,7 @@ export class Marker {
                 // Applica il valore corrente dell'animazione a entrambi i materiali
                 materials.forEach(material => {
                     // Colore base interpolato
-                    const currentColor = originalColor.clone().lerp(brightColor, t * 0.5);
+                    const currentColor = originalColor.clone().lerp(brightColor, t * 0.6);
                     material.color.copy(currentColor);
                     
                     // Colore emissivo correlato
@@ -171,6 +171,7 @@ export async function createPoints(group) {
             console.log(`Creating point for coord_id ${coordId}, map: ${representativeMap.title} at lat:${lat}, lng:${lng}`);
 
             const imageUrl = `${import.meta.env.VITE_BACKEND_URL}/api/maps/${representativeMap.id}/image`;
+            console.log(`Image URL for map ${representativeMap.id}: ${imageUrl}`);
 
             const point = new Marker(
                 lat,

@@ -25,6 +25,10 @@ export function createGlobe({ scene, vertexShader, fragmentShader }) {
     // Crea un gruppo per gestire il globo e i punti
     const group = new THREE.Group();
     group.add(globe);
+
+    group.rotation.x = Math.PI * 0.2; // Ruota sull'asse X (valori in radianti)
+    group.rotation.y = Math.PI*1.4; // Ruota sull'asse Y (valori in radianti)
+
     scene.add(group);
     
     return { globe, group };

@@ -20,6 +20,7 @@ class GlobeApp {
         this.points = [];
         this.imageLabels = null;
         this.autoRotateController = null;
+        this.controls = null;
         
         // Managers
         this.uiManager = new UIManager();
@@ -42,12 +43,17 @@ class GlobeApp {
             
             // Load points
             await this.loadPoints();
+
+            // Setup controls
+            this.setupControls();
+
+            //this.updateInteractionManagerControls();
             
             // Setup interaction
             this.setupInteraction();
-            
-            // Setup controls
-            this.setupControls();
+
+
+            this.setupUIInteractionPrevention();
             
             // Setup lighting
             this.sceneManager.setupLighting();
@@ -63,6 +69,9 @@ class GlobeApp {
             
             // Hide loader
             this.hideLoader();
+
+            this.interactionManager.handleClickCloseMap();
+
             
         } catch (error) {
             this.handleError(error);
@@ -133,12 +142,19 @@ class GlobeApp {
             imageLabels: this.imageLabels,
             autoRotateController: this.autoRotateController,
             uiManager: this.uiManager,
-            cameraManager: this.cameraManager
+            cameraManager: this.cameraManager,
+            controls: this.controls
         });
     }
 
+    updateInteractionManagerControls() {
+    if (this.interactionManager) {
+        this.interactionManager.controls = this.controls;
+    }
+}
+
     setupControls() {
-        setupControls(this.camera, this.group, this.autoRotateController);
+         this.controls = setupControls(this.camera, this.group, this.autoRotateController);
     }
 
     startAnimationLoop() {
@@ -152,24 +168,98 @@ class GlobeApp {
     }
 
     setupEventListeners() {
-        // Click events
-        window.addEventListener('click', (event) => {
+        //Usa solo il canvas per gli eventi, non window
+        const canvas = document.querySelector('#maps-globe-canvas');
+        
+        // Click events - SOLO sul canvas
+        canvas.addEventListener('click', (event) => {
             this.interactionManager.handleClick(event);
         });
 
-        // Pointer move events
-        window.addEventListener('pointermove', (event) => {
+        // Pointer move events - SOLO sul canvas
+        canvas.addEventListener('pointermove', (event) => {
             this.interactionManager.handlePointerMove(event);
         });
 
-        // Resize events
+        // Resize events - mantieni su window
         window.addEventListener('resize', () => {
             this.cameraManager.handleResize();
         });
 
-        // Keyboard events
+        // Keyboard events - mantieni su document
         document.addEventListener('keydown', (event) => {
             this.interactionManager.handleKeyDown(event);
+        });
+    }
+
+    setupUIInteractionPrevention() {
+        // Lista di selettori per tutti gli elementi UI che non dovrebbero permettere il drag del globo
+        const uiSelectors = [
+            '.search-comune-container',
+            '.helper',
+            '.zoom-controls',
+            '.close-map',
+            '.mappe-name',
+            '.mappe-info',
+            '.esplora',
+            '.header',
+            '.main-nav',
+            '#search-dropdown',
+            '#search-input',
+            '.zoom-btn',
+            '.controls',
+            '.reposition',
+            '.viewAll'
+        ];
+
+        // Per ogni selettore UI
+        uiSelectors.forEach(selector => {
+            const elements = document.querySelectorAll(selector);
+            elements.forEach(element => {
+                this.preventGlobeDragOnElement(element);
+            });
+        });
+    }
+
+    preventGlobeDragOnElement(element) {
+        // Eventi da intercettare per prevenire il drag del globo
+        const events = ['mousedown', 'mousemove', 'mouseup', 'touchstart', 'touchmove', 'touchend', 'wheel'];
+        
+        events.forEach(eventType => {
+            element.addEventListener(eventType, (event) => {
+                // Ferma la propagazione per prevenire che raggiunga i controlli del globo
+                event.stopPropagation();
+                
+                // Disabilita temporaneamente i controlli durante l'interazione con l'UI
+                // SOLO se non stiamo visualizzando una mappa
+                if (this.controls && (eventType === 'mousedown' || eventType === 'touchstart')) {
+                    if (this.interactionManager && this.interactionManager.canEnableControls()) {
+                        this.controls.enabled = false;
+                        
+                        // Riabilita i controlli dopo un breve delay, ma solo se possiamo farlo
+                        setTimeout(() => {
+                            if (this.controls && this.interactionManager && this.interactionManager.canEnableControls()) {
+                                this.controls.enabled = true;
+                            }
+                        }, 100);
+                    }
+                }
+            }, { capture: true });
+        });
+
+        // Gestione speciale per gli hover sui pulsanti
+        element.addEventListener('mouseenter', () => {
+            // Disabilita solo se non stiamo visualizzando una mappa
+            if (this.controls && this.interactionManager && this.interactionManager.canEnableControls()) {
+                this.controls.enabled = false;
+            }
+        });
+
+        element.addEventListener('mouseleave', () => {
+            // Riabilita solo se non stiamo visualizzando una mappa
+            if (this.controls && this.interactionManager && this.interactionManager.canEnableControls()) {
+                this.controls.enabled = true;
+            }
         });
     }
 

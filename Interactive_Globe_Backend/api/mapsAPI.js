@@ -90,6 +90,7 @@ router.get('/maps/:mapId/image', async (req, res) => {
       
       const municipalityFolder = map.Digital_Library.name;
       const imagePath = path.join(process.env.MAPS_DIR, municipalityFolder, map.file_name);
+      console.log('Percorso dell\'immagine:', imagePath);
       
       // Invia il file
       res.sendFile(imagePath);
