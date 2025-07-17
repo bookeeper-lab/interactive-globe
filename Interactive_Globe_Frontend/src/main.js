@@ -9,6 +9,7 @@ import { InteractionManager } from './managers/interactionManager.js';
 import { SceneManager } from './managers/sceneManager.js';
 import vertexShader from './shader/vertex.glsl';
 import fragmentShader from './shader/fragment.glsl';
+//import { TutorialManager } from './managers/tutorialManager.js';
 
 
 class GlobeApp {
@@ -27,6 +28,7 @@ class GlobeApp {
         this.cameraManager = null;
         this.interactionManager = null;
         this.sceneManager = null;
+        //this.tutorialManager = null;
     }
 
     async init() {
@@ -51,6 +53,8 @@ class GlobeApp {
             
             // Setup interaction
             this.setupInteraction();
+
+            //this.setupTutorial();
 
 
             this.setupUIInteractionPrevention();
@@ -77,6 +81,11 @@ class GlobeApp {
             this.handleError(error);
         }
     }
+
+    /* setupTutorial() {
+        this.tutorialManager = new TutorialManager(this.interactionManager);
+        this.tutorialManager.init();
+    } */
 
     setupScene() {
         this.scene = new THREE.Scene();
@@ -143,8 +152,12 @@ class GlobeApp {
             autoRotateController: this.autoRotateController,
             uiManager: this.uiManager,
             cameraManager: this.cameraManager,
-            controls: this.controls
+            controls: this.controls,
         });
+
+        this.interactionManager.setupRepositionButton();
+        this.interactionManager.setupExploreButton(); 
+        this.interactionManager.setupBackFromGridButton();
     }
 
     updateInteractionManagerControls() {
@@ -209,7 +222,9 @@ class GlobeApp {
             '.zoom-btn',
             '.controls',
             '.reposition',
-            '.viewAll'
+            '.viewAll',
+            '.back-from-grid',   
+            '.close-grid'
         ];
 
         // Per ogni selettore UI
